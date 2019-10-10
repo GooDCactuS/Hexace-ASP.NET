@@ -1,0 +1,40 @@
+﻿.statisticsTable {
+    width: 768px;
+    margin: 0 auto;
+}
+
+    .statisticsTable table {
+        width: 100%;
+        display: table;
+        margin: 0 auto;
+        border-collapse: collapse;
+    }
+
+    .statisticsTable td,
+    .statisticsTable th {
+        padding: 15px 5px;
+        display: table-cell;
+        text-align: center;
+        vertical-align: middle;
+        border-radius: 2px;
+    }
+
+
+
+/* если ширина окна меньше чем 768px, применяем правило */
+
+@media only screen and (max-width: 768px) {
+    .statisticsTable {
+        width: 100%;
+        /* растягиваем на всю ширину */
+    }
+
+        .statisticsTable > table > tr {
+            border: 1px solid #2980b9; /* меняем цвет рамки */
+        }
+}
+
+.statisticsImage {
+    width: 100%;
+    min-width: 20px;
+}

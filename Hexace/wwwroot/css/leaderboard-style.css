@@ -1,0 +1,36 @@
+﻿.leaderboardTable {
+    width: 768px;
+    margin: 0 auto;
+}
+
+    .leaderboardTable table {
+        width: 100%;
+        display: table;
+        margin: 0 auto;
+        border-collapse: collapse;
+    }
+
+    .leaderboardTable td,
+    .leaderboardTable th {
+        padding: 15px 5px;
+        display: table-cell;
+        text-align: center;
+        vertical-align: middle;
+        border-radius: 2px;
+    }
+
+
+/* если ширина окна меньше чем 768px, применяем правило */
+
+@media only screen and (max-width: 768px) {
+    .leaderboardTable {
+        width: 100%;
+        /* растягиваем на всю ширину */
+    }
+}
+
+.leaderboardImage {
+    width: 100%;
+    min-width: 15px;
+    padding: 5px;
+}
