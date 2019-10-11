@@ -39,7 +39,7 @@ $(function () {
         hexRectangleWidth,
         hexagonAngle = 0.523598776, //30 градусов в радианах
         sideLength = 20, //длина стороны, пискелов
-        boardWidth = 50, //ширина "доски" по вертикали
+        boardWidth = 28, //ширина "доски" по вертикали
         boardHeight = 30; //высота "доски" по вертикали
 
     hexHeight = Math.sin(hexagonAngle) * sideLength;
