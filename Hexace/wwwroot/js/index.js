@@ -30,3 +30,84 @@ $(function() {
   $(".forgot").toggleClass("forgot-fade");
 	});
 });
+
+$(function () {
+    var canvas = document.getElementById('hexagonCanvas');
+    var hexHeight,
+        hexRadius,
+        hexRectangleHeight,
+        hexRectangleWidth,
+        hexagonAngle = 0.523598776, //30 градусов в радианах
+        sideLength = 20, //длина стороны, пискелов
+        boardWidth = 50, //ширина "доски" по вертикали
+        boardHeight = 30; //высота "доски" по вертикали
+
+    hexHeight = Math.sin(hexagonAngle) * sideLength;
+    hexRadius = Math.cos(hexagonAngle) * sideLength;
+    hexRectangleHeight = sideLength + 2 * hexHeight;
+    hexRectangleWidth = 2 * hexRadius;
+
+    if (canvas.getContext) {
+        var ctx = canvas.getContext('2d');
+        ctx.fillStyle = "#000000";
+        ctx.strokeStyle = "#ff132c";
+        ctx.lineWidth = 2;
+        drawBoard(ctx, boardWidth, boardHeight); //первичная отрисовка
+        canvas.addEventListener("mousemove", function (eventInfo) { //слушатель перемещения мыши
+            var x = (eventInfo.offsetX || eventInfo.layer) * canvas.width / canvas.scrollWidth;
+            var y = (eventInfo.offsetY || eventInfo.layerY) * canvas.height / canvas.scrollHeight;
+            var hexY = Math.floor(y / (hexHeight + sideLength));
+            var hexX = Math.floor((x - (hexY % 2) * hexRadius) / hexRectangleWidth);
+            var screenX = hexX * hexRectangleWidth + ((hexY % 2) * hexRadius);
+            var screenY = hexY * (hexHeight + sideLength);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawBoard(ctx, boardWidth, boardHeight, false); //перерисовка на mousemove
+            //На доске ли координаты мыши
+            if (hexX >= -boardWidth / 2 && hexX <= boardWidth) {
+                if (hexY >= -boardHeight / 2 && hexY <= boardHeight) {
+                    ctx.fillStyle = "#F08080";
+                    drawHexagon(ctx, screenX, screenY, true);
+                }
+            }
+        });
+    }
+
+    //height убрать в будущем
+    function drawBoard(canvasContext, width, height) {
+        var side = 10;
+        var start = side - 1;
+        //отступ в зависимости от количества ячеек
+        var indent = 0;
+        for (var j = 0; j < side * 2 - 1; j++) {
+            if (j < side) {
+                start++;
+                if (start % 2 == 0)
+                    indent++;
+            }
+            else {
+                start--;
+                if (start % 2 == 1)
+                    indent--;
+            }
+
+            for (var i = width / 2 - start + indent; i < width / 2 + indent; i++) {
+
+                drawHexagon(ctx, i * hexRectangleWidth + ((j % 2) * hexRadius),
+                    j * (sideLength + hexHeight), false);
+
+            }
+        }
+    }
+    function drawHexagon(canvasContext, x, y, fill = false) {
+        canvasContext.beginPath();
+        canvasContext.moveTo(x + hexRadius, y);
+        canvasContext.lineTo(x + hexRectangleWidth, y + hexHeight);
+        canvasContext.lineTo(x + hexRectangleWidth, y + hexHeight + sideLength);
+        canvasContext.lineTo(x + hexRadius, y + hexRectangleHeight);
+        canvasContext.lineTo(x, y + sideLength + hexHeight);
+        canvasContext.lineTo(x, y + hexHeight);
+        canvasContext.closePath();
+        if (fill) canvasContext.fill();
+        else canvasContext.stroke();
+    }
+})();
