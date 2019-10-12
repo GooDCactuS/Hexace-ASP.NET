@@ -30,22 +30,20 @@ $(function() {
   $(".forgot").toggleClass("forgot-fade");
 	});
 });
-
-$(function () {
+var board = new Array();
+$(function (board) {
     var canvas = document.getElementById('hexagonCanvas');
     var hexHeight,
         hexRadius,
         hexRectangleHeight,
         hexRectangleWidth,
         hexagonAngle = 0.523598776, //30 градусов в радианах
-        sideLength = 20, //длина стороны, пискелов
-        boardWidth = 28, //ширина "доски" по вертикали
-
+        sideLength = 18, //длина стороны, пискелов
+        boardWidth = 30 //ширина "доски" по вертикали
     hexHeight = Math.sin(hexagonAngle) * sideLength;
     hexRadius = Math.cos(hexagonAngle) * sideLength;
     hexRectangleHeight = sideLength + 2 * hexHeight;
     hexRectangleWidth = 2 * hexRadius;
-    var board = new Array();
     if (canvas.getContext) {
         var ctx = canvas.getContext('2d');
         ctx.fillStyle = "#000000";
@@ -72,7 +70,7 @@ $(function () {
             var y = (eventInfo.offsetY || eventInfo.layerY) * canvas.height / canvas.scrollHeight;
             var hexY = Math.floor(y / (hexHeight + sideLength));
             var hexX = Math.floor((x - (hexY % 2) * hexRadius) / hexRectangleWidth);
-            document.getElementById("arrLength").textContent = board.length;
+            //document.getElementById("arrLength").textContent = board.length;
             ctx.clearRect(0, 0, canvas.scrollWidth, canvas.scrollHeight);
             //На доске ли координаты мыши
             var obj = { x: hexX, y: hexY, color: ctx };
