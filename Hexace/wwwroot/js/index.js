@@ -58,22 +58,21 @@ $(function () {
             var y = (eventInfo.offsetY || eventInfo.layerY) * canvas.height / canvas.scrollHeight;
             var hexY = Math.floor(y / (hexHeight + sideLength));
             var hexX = Math.floor((x - (hexY % 2) * hexRadius) / hexRectangleWidth);
-            var screenX = hexX * hexRectangleWidth + ((hexY % 2) * hexRadius);
-            var screenY = hexY * (hexHeight + sideLength);
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             drawBoard(ctx, boardWidth, boardHeight, false); //перерисовка на mousemove
             //На доске ли координаты мыши
-            if (hexX >= -boardWidth / 2 && hexX <= boardWidth) {
-                if (hexY >= -boardHeight / 2 && hexY <= boardHeight) {
-                    ctx.fillStyle = "#F08080";
-                    drawHexagon(ctx, screenX, screenY, true);
-                }
+            var obj = { x: hexX, y: hexY};
+            if (board.some(item => (item.x === obj.x) && (item.y === obj.y))) {
+                document.getElementById("arrLength").textContent = board[5].x + " " + board[5].y;
+                ctx.fillStyle = "#F08080";
+                drawHexagon(ctx, obj.x, obj.y, true);
             }
         });
     }
 
     //height убрать в будущем
     function drawBoard(canvasContext, width, height) {
+        board = new Array();
         var side = 10;
         var start = side - 1;
         //отступ в зависимости от количества ячеек
@@ -90,15 +89,19 @@ $(function () {
                     indent--;
             }
 
-            for (var i = width / 2 - start + indent; i < width / 2 + indent; i++) {
-
-                drawHexagon(ctx, i * hexRectangleWidth + ((j % 2) * hexRadius),
-                    j * (sideLength + hexHeight), false);
-
+            for (var i = width / 2 - start + indent; i < width / 2 + indent; i++)
+            {
+                drawHexagon(ctx, i, j, false);
+                var obj = { x: i, y: j};
+                board.push(obj);
+                
             }
         }
     }
+    var board = new Array();
     function drawHexagon(canvasContext, x, y, fill = false) {
+        x = x * hexRectangleWidth + ((y % 2) * hexRadius);//приведение координат
+        y = y * (hexHeight + sideLength);
         canvasContext.beginPath();
         canvasContext.moveTo(x + hexRadius, y);
         canvasContext.lineTo(x + hexRectangleWidth, y + hexHeight);
