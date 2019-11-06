@@ -30,9 +30,11 @@ $(function() {
   $(".forgot").toggleClass("forgot-fade");
 	});
 });
+//
 var board = new Array();
 $(function (board) {
     var canvas = document.getElementById('hexagonCanvas');
+    if (canvas == null) return;
     var hexHeight,
         hexRadius,
         hexRectangleHeight,
@@ -56,13 +58,15 @@ $(function (board) {
             var y = (eventInfo.offsetY || eventInfo.layerY) * canvas.height / canvas.scrollHeight;
             var hexY = Math.floor(y / (hexHeight + sideLength));
             var hexX = Math.floor((x - (hexY % 2) * hexRadius) / hexRectangleWidth);
-            ctx.clearRect(0, 0, canvas.scrollWidth, canvas.scrollHeight);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
             draw(board); //перерисовка на mousemove
             //На доске ли координаты мыши
-            var obj = { x: hexX, y: hexY, color: ctx};
+            var obj = { x: hexX, y: hexY, color: ctx };
             if (board.some(item => (item.x === obj.x) && (item.y === obj.y))) {
                 ctx.fillStyle = "#F08080";
-                drawHexagon(ctx, obj.x, obj.y, true);
+                ctx.lineWidth = 4;
+                drawHexagon(ctx, obj.x, obj.y, false);
+                ctx.lineWidth = 2;
             }
         });
         canvas.addEventListener("mousedown", function (eventInfo) { //слушатель нажатий мыши
@@ -111,10 +115,9 @@ $(function (board) {
                     indent--;
             }
 
-            for (var i = width / 2 - start + indent; i < width / 2 + indent; i++)
-            {
+            for (var i = width / 2 - start + indent; i < width / 2 + indent; i++) {
                 drawHexagon(ctx, i, j, false);
-                var obj = { x: i, y: j, color: ctx.fillStyle, isFill: false};
+                var obj = { x: i, y: j, color: ctx.fillStyle, isFill: false };
                 board.push(obj);
             }
         }
@@ -134,4 +137,4 @@ $(function (board) {
         if (fill) canvasContext.fill();
         else canvasContext.stroke();
     }
-})();
+});
