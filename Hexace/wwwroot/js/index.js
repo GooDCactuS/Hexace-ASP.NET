@@ -75,7 +75,7 @@ $(function (board) {
             var hexY = Math.floor(y / (hexHeight + sideLength));
             var hexX = Math.floor((x - (hexY % 2) * hexRadius) / hexRectangleWidth);
             //document.getElementById("arrLength").textContent = board.length;
-            ctx.clearRect(0, 0, canvas.scrollWidth, canvas.scrollHeight);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
             //На доске ли координаты мыши
             var obj = { x: hexX, y: hexY, color: ctx };
             if (board.some(item => (item.x === obj.x) && (item.y === obj.y))) {
@@ -106,7 +106,7 @@ $(function (board) {
         for (var j = 0; j < side * 2 - 1; j++) {
             if (j < side) {
                 start++;
-                if (start % 2 == 0)
+                if (start % 2 === 0)
                     indent++;
             }
             else {
