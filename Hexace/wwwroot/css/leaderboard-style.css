@@ -20,17 +20,15 @@
     }
 
 
-/* если ширина окна меньше чем 768px, применяем правило */
-
 @media only screen and (max-width: 768px) {
     .leaderboardTable {
         width: 100%;
         /* растягиваем на всю ширину */
     }
+
+    .flexContainer {
+        width: 100%;
+    }
 }
 
-.leaderboardImage {
-    width: 100%;
-    min-width: 15px;
-    padding: 5px;
-}
+

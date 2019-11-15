@@ -68,3 +68,29 @@ html {
 }
 
 
+.image {
+    margin: 0 auto;
+    padding: 5px;
+}
+
+
+.flexContainer {
+    margin: 0 auto;
+    width: 70%;
+    display: -webkit-flex;
+    justify-content: center;
+}
+
+
+.subContainer {
+    margin: 0 auto;
+    width: 20%;
+    display: block;
+    flex-direction: column;
+}
+
+@media only screen and (max-width: 768px) {
+    .flexContainer {
+        width: 100%;
+    }
+}
