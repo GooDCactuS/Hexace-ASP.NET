@@ -67,29 +67,20 @@ html {
     padding: 30px 100px;
 }
 
-
-.image {
-    margin: 0 auto;
-    padding: 5px;
-}
-
-
 .flexContainer {
-    margin: 0 auto;
-    width: 70%;
-    display: -webkit-flex;
-    justify-content: center;
+    display: flex;
 }
-
-
 .subContainer {
     margin: 0 auto;
     width: 20%;
-    display: block;
-    flex-direction: column;
+    display: flex;
+    flex-direction:row;
 }
 
-@media only screen and (max-width: 768px) {
+.image {
+    max-width:70%
+}
+@media only screen and (max-width: 1920px) {
     .flexContainer {
         width: 100%;
     }
