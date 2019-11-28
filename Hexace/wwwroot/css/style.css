@@ -78,7 +78,7 @@ html {
 }
 
 .image {
-    max-width:70%
+    max-width:50%
 }
 @media only screen and (max-width: 1920px) {
     .flexContainer {
