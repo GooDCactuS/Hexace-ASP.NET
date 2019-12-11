@@ -64,7 +64,19 @@ html {
 
 .pagetext {
     color: rgba(255,255,255,.7);
-    padding: 30px 100px;
+    padding: 2% 5% 3% 3%;
 }
 
+.flexContainer {
+    display: flex;
+}
+.subContainer {
+    margin: 0 auto;
+    display: flex;
+    flex-direction:row;
+}
 
+.image {
+    padding: 5px;
+    max-width: 50%;
+}

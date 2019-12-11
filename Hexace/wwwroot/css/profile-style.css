@@ -1,13 +1,13 @@
 
 .container {
     width: 100%;
-    padding-top: 60px;
-    padding-bottom: 100px;
+    padding-top: 3%;
+    padding-bottom: 5%;
 }
 
 .frame {
   height: 475px;
-  width: 430px;  
+  max-width: 430px;  
   margin-left: auto;
   margin-right: auto;
   border-top: solid 1px rgba(255,255,255,.5);
@@ -88,13 +88,12 @@
 }
 
 .form-signin {
-  width: 430px;
+  max-width: 430px;
   height: 375px;
 	font-size: 16px;
 	font-weight: 300;
   padding-left: 37px;
   padding-right: 37px;
-  padding-top: 55px;
   -webkit-transition: opacity .5s ease, -webkit-transform .5s ease;
   transition: opacity .5s ease, -webkit-transform .5s ease;
   transition: opacity .5s ease, transform .5s ease;
@@ -108,13 +107,13 @@
 }
 
 .form-signup {
-  width: 430px;
+  max-width: 430px;
   height: 375px;
 	font-size: 16px;
 	font-weight: 300;
   padding-left: 37px;
   padding-right: 37px;
-  padding-top: 55px;
+    padding-top: 5%;
   position: relative;
   top: -375px;
   left: 400px;
@@ -184,13 +183,13 @@
 }
 
 .form-styling {
-  width: 100%;
-  height: 35px;
-	padding-left: 15px;
-	border: none;
-	border-radius: 20px;
-  margin-bottom: 20px;
-  background: rgba(255,255,255,.2);
+    width: 100%;
+    height: 35px;
+    padding-left: 15px;
+    border-color: #d94f5c;
+    border-radius: 20px;
+    margin-bottom: 20px;
+    background: rgba(255,255,255,.2);
 }
 
 label {
@@ -327,7 +326,9 @@ label {
   margin-top: -8px;
   background-color: #d94f5c;
 }
-
+a {
+    color: #ffffff;
+}
 .btn-animate {
   float: left;
   font-weight: 700;

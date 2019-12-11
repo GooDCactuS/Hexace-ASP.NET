@@ -5,18 +5,24 @@
 }
 @*<h2>@ViewData["Title"]</h2>*@
 
+<div class="flexContainer">
+    <div class="subContainer">
+        <img class="image" src="images/hex_turquoise.svg" alt="Turquoise Team">
+        <div class="statisticsNumbers">
+            Points: @Model.Statistics[0]
+        </div>
+    </div>
+    <div class="subContainer">
+        <img class="image" src="images/hex_purple.svg" alt="Purple Team">
+        <div class="statisticsNumbers">
+            Points: @Model.Statistics[1]
+        </div>
+        </div>
+        <div class="subContainer">
+            <img class="image" src="images/hex_burgundy.svg" alt="Burgundy Team">
+            <div class="statisticsNumbers">
+                Points: @Model.Statistics[2]
+            </div>
+        </div>
+    </div>
 
-<div class="statisticsTable">
-    <table>
-        <tr>
-            <td><img class="statisticsImage" src="images/hex_turquoise.svg" alt="Turquoise Team"></td>
-            <td><img class="statisticsImage" src="images/hex_purple.svg" alt="Purple Team"></td>
-            <td><img class="statisticsImage" src="images/hex_burgundy.svg" alt="Burgundy Team"></td>
-        </tr>
-        <tr>
-            <td>Points: 280</td>
-            <td>Points: 350</td>
-            <td>Points: 480</td>
-        </tr>
-    </table>
-</div>
