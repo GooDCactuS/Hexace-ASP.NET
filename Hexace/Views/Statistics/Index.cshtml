@@ -1,5 +1,4 @@
-﻿@page
-@model Hexace.Pages.StatisticsModel
+﻿@model Hexace.Models.StatisticsModel
 @{
     ViewData["Title"] = "Statistics";
 }
@@ -17,12 +16,11 @@
         <div class="statisticsNumbers">
             Points: @Model.Statistics[1]
         </div>
-        </div>
-        <div class="subContainer">
-            <img class="image" src="images/hex_burgundy.svg" alt="Burgundy Team">
-            <div class="statisticsNumbers">
-                Points: @Model.Statistics[2]
-            </div>
+    </div>
+    <div class="subContainer">
+        <img class="image" src="images/hex_burgundy.svg" alt="Burgundy Team">
+        <div class="statisticsNumbers">
+            Points: @Model.Statistics[2]
         </div>
     </div>
-
+</div>
