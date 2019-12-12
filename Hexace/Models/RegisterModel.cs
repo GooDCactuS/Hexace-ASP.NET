@@ -1,11 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace Hexace.Models
 {
-    public class ProfileModel
+    public class RegisterModel
     {
-
         [Required(ErrorMessage = "Nickname not specified")]
         public string Nickname { get; set; }
 
@@ -19,6 +17,5 @@ namespace Hexace.Models
         [DataType(DataType.Password)]
         [Compare("Password", ErrorMessage = "Passwords do not match")]
         public string PasswordConfirmation { get; set; }
-
     }
 }

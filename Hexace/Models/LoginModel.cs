@@ -1,11 +1,14 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace Hexace.Models
 {
-    public class ProfileModel
+    public class LoginModel
     {
-
         [Required(ErrorMessage = "Nickname not specified")]
         public string Nickname { get; set; }
 
