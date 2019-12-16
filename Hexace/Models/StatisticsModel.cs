@@ -1,14 +1,19 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data.SqlClient;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.IdentityModel.Protocols;
 
-namespace Hexace.Pages
+namespace Hexace.Models
 {
     public class StatisticsModel : PageModel
     {
         public List<int> Statistics { get; set; } = new List<int>();
-        
+
+        public StatisticsModel()
+        {
+            Statistics.Add(350);
+            Statistics.Add(220);
+            Statistics.Add(470);
+        }
 
         public void OnGet()
         {
@@ -23,14 +28,11 @@ namespace Hexace.Pages
             //    {
             //        while (reader.Read())
             //        {
-                        
+
             //        }
             //    }
             //}
 
-            Statistics.Add(350);
-            Statistics.Add(220);
-            Statistics.Add(470);
         }
     }
 }

@@ -1,0 +1,12 @@
+﻿@model ProfileModel
+@{
+    ViewData["Title"] = "Profile";
+}
+@*<h2>@ViewData["Title"]</h2>*@
+    <div>
+        <p>Здесь будет располагаться профиль.</p>
+        
+        <form asp-controller="Profile" asp-action="Logout">
+            <input type="submit" value="Sign out"/>
+        </form>
+    </div>
