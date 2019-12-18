@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hexace.Controllers
@@ -34,13 +35,18 @@ namespace Hexace.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginModel model)
         {
+            
             if(ModelState["Email"].ValidationState == ModelValidationState.Valid && ModelState["Password"].ValidationState == ModelValidationState.Valid)
             {
-                User user = await db.Users.FirstOrDefaultAsync(u => u.Email == model.Email && u.Password == model.Password);
+                var user = await db.users.FirstOrDefaultAsync(u => u.email == model.Email && u.password == model.Password);
                 if (user != null)
                 {
                     await Authenticate(model.Email);
 
+                    return RedirectToAction("Index", "Home");
+                }
+                else
+                {
                     return RedirectToAction("Index", "Home");
                 }
                 ModelState.AddModelError("", "Incorrect email or password.");
@@ -61,22 +67,27 @@ namespace Hexace.Controllers
         {
             if (ModelState.IsValid)
             {
-                User user = await db.Users.FirstOrDefaultAsync(u =>
-                    u.Email == model.Email && u.Password == model.Password);
-                if (user == null)
+                User user = await db.users.FirstAsync(u =>
+                    u.email == model.Email && u.password == model.Password);
+                if (user==null)
                 {
-                    db.Users.Add(new User
+                    db.users.Add(new User
                     {
-                        Nickname = model.Nickname,
-                        Email = model.Email,
-                        Password = model.Password,
-                        RegistrationDate = DateTime.Today.Date,
-                        UserType = "Player"
-                    });
+                        user_id = 7,
+                        nickname = model.Nickname,
+                        email = model.Email,
+                        password = model.Password,
+                        datetime = DateTime.Now.ToLocalTime(),
+                        last_signin = DateTime.Now.ToLocalTime(),
+                        user_type_id = 1
+                    }); 
                     await db.SaveChangesAsync();
                     await Authenticate(model.Email);
 
                     return RedirectToAction("Index", "Home");
+                }else
+                {
+                    Console.WriteLine("User is not found.");
                 }
                 ModelState.AddModelError("", "Incorrect email or password.");
             }
