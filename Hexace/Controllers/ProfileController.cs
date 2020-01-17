@@ -73,6 +73,7 @@ namespace Hexace.Controllers
                 {
                     db.users.Add(new User
                     {
+<<<<<<< Updated upstream
                         user_id = 7,
                         nickname = model.Nickname,
                         email = model.Email,
@@ -80,6 +81,13 @@ namespace Hexace.Controllers
                         datetime = DateTime.Now.ToLocalTime(),
                         last_signin = DateTime.Now.ToLocalTime(),
                         user_type_id = 1
+=======
+                        Nickname = model.Nickname,
+                        Email = model.Email,
+                        Password = model.Password,
+                        RegistrationDate = DateTime.Today.Date,
+                        UserType = "Player"
+>>>>>>> Stashed changes
                     }); 
                     await db.SaveChangesAsync();
                     await Authenticate(model.Email);
