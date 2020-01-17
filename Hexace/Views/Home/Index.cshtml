@@ -1,14 +1,25 @@
 ﻿@{
     ViewData["Title"] = "Play";
 }
+@model HomeModel
+<script>
+    var board = @HomeModel.Cells.ToArray();
+    @foreach (var cell in @HomeModel.Cells)
+    {
+        var obj = (x: cell.X, y: cell.Y, color: cell.ColorDef, isFill: cell.IsFilled);
+        
+    }
+</script>
 <div class="canvas-container">
     @*<div>
             <label id="arrLength">Length</label>
         </div>*@
+    
     <div>
         <canvas id="hexagonCanvas" width="700" height="550">
             Извините, ваш браузер не поддерживает тег canvas
         </canvas>
     </div>
 </div>
+
 <noscript><div>Извините, требуется включённый Javascript для работы приложения!</div></noscript>

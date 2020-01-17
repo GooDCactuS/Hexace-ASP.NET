@@ -7,11 +7,16 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace Hexace.Models
 {
-    public class HomeModel : PageModel
+    public class ObjectCell
     {
-        public void OnGet()
-        {
-
-        }
+        public int X;
+        public int Y;
+        public string ColorDef;
+        public bool IsFilled;
+        public bool IsStroked;
+    }
+    public class HomeModel
+    {
+        public static List<ObjectCell> Cells;
     }
 }

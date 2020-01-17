@@ -30,8 +30,8 @@ $(function() {
   $(".forgot").toggleClass("forgot-fade");
 	});
 });
-//
-var board = new Array();
+
+
 $(function (board) {
     var canvas = document.getElementById('hexagonCanvas');
     if (canvas == null) return;
@@ -123,7 +123,7 @@ $(function (board) {
         }
         return board;
     }
-    function drawHexagon(canvasContext, x, y, fill = false) {
+    function drawHexagon(canvasContext, x, y, fill = false, stroke=false) {
         x = x * hexRectangleWidth + ((y % 2) * hexRadius);//приведение координат
         y = y * (hexHeight + sideLength);
         canvasContext.beginPath();
@@ -135,6 +135,9 @@ $(function (board) {
         canvasContext.lineTo(x, y + hexHeight);
         canvasContext.closePath();
         if (fill) canvasContext.fill();
-        else canvasContext.stroke();
+        if (stroke) canvasContext.stroke();
+        else {
+
+        };
     }
 });
