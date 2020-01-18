@@ -1,27 +1,31 @@
-﻿@model Hexace.Models.LeaderboardModel
+﻿@model LeaderboardModel
 @{
     ViewData["Title"] = "Leaderboard";
 }
 
 @*<h2>@ViewData["Title"]</h2>*@
-
-<div class="flexContainer">
-    
+<script>
+    function sendData(data) {
+        document.getElementById("hiddenField").value = data;
+    }
+</script>
+<form asp-controller="Leaderboard" asp-action="Index" class="flexContainer">
+    <input asp-for="ButtonValue" type="hidden" id="hiddenField"/>
     <div class="subContainer">
-        <img class="image" src="images/hex_turquoise.svg" alt="Turquoise Team">
-        <img class="image" src="images/hex_turquoise.svg" alt="Turquoise Team">
+        <input type="image" onclick="sendData('ta')" class="image" src="images/hex_turquoise.svg" alt="Turquoise Team">
+        <input type="image" onclick="sendData('td')" class="image" src="images/hex_turquoise.svg" alt="Turquoise Team">
     </div>
     <div class="subContainer">
-        <img class="image" src="images/hex_purple.svg" alt="Purple Team">
-        <img class="image" src="images/hex_purple.svg" alt="Purple Team">
+        <input type="image" onclick="sendData('pa')" class="image" src="images/hex_purple.svg" alt="Purple Team">
+        <input type="image" onclick="sendData('pd')" class="image" src="images/hex_purple.svg" alt="Purple Team">
     </div>
     <div class="subContainer">
-        <img class="image" src="images/hex_burgundy.svg" alt="Burgundy Team">
-        <img class="image" src="images/hex_burgundy.svg" alt="Burgundy Team">
+        <input type="image" onclick="sendData('ba')" class="image" src="images/hex_burgundy.svg" alt="Burgundy Team">
+        <input type="image" onclick="sendData('bd')" class="image" src="images/hex_burgundy.svg" alt="Burgundy Team">
     </div>
 
 
-</div>
+</form>
 
 <div class="leaderboardTable">
 
@@ -29,39 +33,16 @@
         <tr>
             <td>#</td>
             <td colspan="2">Nickname</td>
-            <td colspan="2">Corporation</td>
             <td>Rating</td>
         </tr>
-        <tr>
-            <td>1</td>
-            <td colspan="2">Player 1</td>
-            <td colspan="2">-</td>
-            <td>208</td>
-        </tr>
-        <tr>
-            <td>2</td>
-            <td colspan="2">Player 2</td>
-            <td colspan="2">Aces</td>
-            <td>140</td>
-        </tr>
-
-        <tr>
-            <td>3</td>
-            <td colspan="2">Player 3</td>
-            <td colspan="2">Aces</td>
-            <td>130</td>
-        </tr>
-        <tr>
-            <td>4</td>
-            <td colspan="2">Player 4</td>
-            <td colspan="2">-</td>
-            <td>92</td>
-        </tr>
-        <tr>
-            <td>5</td>
-            <td colspan="2">Player 5</td>
-            <td colspan="2">Sharks</td>
-            <td>76</td>
-        </tr>
+        @for(int i=0; i<@Model.Users.Count; i++)
+        {
+            <tr>
+                <td>@(i+1)</td>
+                <td colspan="2">@Model.Users[i].Nickname</td>
+                <td>@Model.Users[i].ProfileInfo.SuccessfulAttacks</td>
+            </tr>
+        }
+        
     </table>
 </div>
