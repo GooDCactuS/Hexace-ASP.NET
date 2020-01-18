@@ -34,7 +34,7 @@ namespace Hexace.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginModel model)
         {
-            if(ModelState["Email"].ValidationState == ModelValidationState.Valid && ModelState["Password"].ValidationState == ModelValidationState.Valid)
+            if (ModelState["Email"].ValidationState == ModelValidationState.Valid && ModelState["Password"].ValidationState == ModelValidationState.Valid)
             {
                 User user = await db.Users.FirstOrDefaultAsync(u => u.Email == model.Email && u.Password == model.Password);
                 if (user != null)
@@ -73,6 +73,20 @@ namespace Hexace.Controllers
                         RegistrationDate = DateTime.Today.Date,
                         UserType = "Player"
                     });
+
+                    await db.SaveChangesAsync();
+
+                    db.Profiles.Add(new Profile
+                    {
+                        AttackAttempts = 0,
+                        DefenseAttempts = 0,
+                        SeasonId = 1,
+                        FractionId = new Random().Next(1, 4),
+                        SuccessfulAttacks = 0,
+                        SuccessfulDefences = 0,
+                        UserId = db.Users.First(x => x.Nickname == model.Nickname).Id
+                    });
+
                     await db.SaveChangesAsync();
                     await Authenticate(model.Email);
 
@@ -84,11 +98,11 @@ namespace Hexace.Controllers
             return View("Login", model);
         }
 
-        private async Task Authenticate(string userName)
+        private async Task Authenticate(string email)
         {
             var claims = new List<Claim>
             {
-                new Claim(ClaimsIdentity.DefaultNameClaimType, userName)
+                new Claim(ClaimsIdentity.DefaultNameClaimType, email)
             };
             ClaimsIdentity id = new ClaimsIdentity(claims, "ApplicationCookie", ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(id));
@@ -105,7 +119,11 @@ namespace Hexace.Controllers
         [Authorize]
         public IActionResult Index()
         {
-            return View();
+            var user = db.Users.First(x => x.Email == HttpContext.User.Identity.Name);
+            var profile = db.Profiles.First(x => x.UserId == user.Id);
+            var model = new ProfileModel(user, profile);
+            
+            return View("Index", model);
         }
     }
 }

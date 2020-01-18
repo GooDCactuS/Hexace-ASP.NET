@@ -18,7 +18,6 @@ namespace Hexace
         public static void Main(string[] args)
         {
             host = CreateHostBuilder(args).Build();
-
             MainLogic mainLogic;
 
             using (var scope = host.Services.CreateScope())

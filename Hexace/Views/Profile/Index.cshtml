@@ -4,7 +4,13 @@
 }
 @*<h2>@ViewData["Title"]</h2>*@
     <div>
-        <p>Здесь будет располагаться профиль.</p>
+        <p>Your nickname: @Model.User.Nickname</p>
+        <p>Registration date: @Model.User.RegistrationDate.Day.@Model.User.RegistrationDate.Month.@Model.User.RegistrationDate.Year</p><br/>
+        <p>Attack attempts: @Model.Profile.AttackAttempts</p>
+        <p>Successful attacks: @Model.Profile.SuccessfulAttacks</p>
+        <p>Defence attempts: @Model.Profile.DefenseAttempts</p>
+        <p>Successful defences: @Model.Profile.SuccessfulDefences</p>
+        
         
         <form asp-controller="Profile" asp-action="Logout">
             <input type="submit" value="Sign out"/>
