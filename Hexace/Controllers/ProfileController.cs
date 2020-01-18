@@ -121,7 +121,11 @@ namespace Hexace.Controllers
         {
             var user = db.Users.First(x => x.Email == HttpContext.User.Identity.Name);
             var profile = db.Profiles.First(x => x.UserId == user.Id);
-            var model = new ProfileModel(user, profile);
+            var userAchievements = db.UsersAchievements.Where(x=>x.UserId==user.Id).ToList();
+            var achievements = db.Achievements.ToList();
+            
+            var model = new ProfileModel(user, profile, achievements, userAchievements);
+            
             
             return View("Index", model);
         }

@@ -7,6 +7,8 @@ namespace Hexace.Data
     {
         public DbSet<User> Users { get; set; }
         public DbSet<Profile> Profiles { get; set; }
+        public DbSet<Achievement> Achievements { get; set; }
+        public DbSet<UserAchievement> UsersAchievements { get; set; }
 
         public UserContext(DbContextOptions<UserContext> options) : base(options)
         {
