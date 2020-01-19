@@ -137,6 +137,21 @@
             Извините, ваш браузер не поддерживает тег canvas
         </canvas>
     </div>
+
+    
+</div>
+
+
+
+<div>
+    <textarea id="gameChat" cols="60" rows="30" style="background: #1c1d22;">
+ 
+    </textarea>
+    <form class="form-horizontal" asp-controller="Home" asp-action="SendMessage">
+        <label asp-for="UserMessage" style="text-transform: none">Your message:</label>
+        <input asp-for="UserMessage" type="text" style="color: black" size="40"/>
+        <input type="submit" value="Send" class="buttons"/>
+    </form>
 </div>
 
 <input type="hidden" id="cellY" name="cellY" />
