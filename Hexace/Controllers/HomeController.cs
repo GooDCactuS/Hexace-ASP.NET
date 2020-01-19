@@ -81,14 +81,6 @@ namespace Hexace.Controllers
             return View();
         }
 
-        //public async Task<IActionResult> SendMessage(HomeModel model)
-        //{
-        //    var user = dbUser.Users.First(u => u.Email == HttpContext.User.Identity.Name);
-        //    var profile = dbUser.Profiles.First(p => p.UserId == user.Id);
-        //    MainLogic.Chat.Chats[profile.FractionId].Add(new ChatMessage(user.Id, model.UserMessage, DateTime.Now, profile.FractionId));
-        //    MainLogic.Chat.Users.Add(new User(){Id = user.Id, Nickname = user.Nickname});
-        //    return View("Index", new HomeModel(profile.FractionId));
-        //}
 
         public int GetCurrentUserFraction(UserContext context)
         {
