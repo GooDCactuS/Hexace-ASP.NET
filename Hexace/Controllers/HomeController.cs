@@ -18,13 +18,14 @@ namespace Hexace.Controllers
     public class HomeController : Controller
     {
         private CellContext db;
-        public HomeController(CellContext context)
+        private UserContext dbUser;
+
+        public HomeController(CellContext context, UserContext userContext)
         {
             db = context;
+            dbUser = userContext;
         }
-        [HttpPost]
-        [Authorize]
-        public IActionResult In
+
         [HttpGet]
         [Authorize]
         public IActionResult Index()
@@ -70,12 +71,49 @@ namespace Hexace.Controllers
             HomeModel.Cells.Clear();
             foreach (var cell in db.FieldCells.ToList())
             {
-                var colorDef= cell.IsFilled?db.Fractions.First(x=>x.Id==cell.FractionDefId).Color:null;
+                var colorDef = cell.IsFilled ? db.Fractions.First(x => x.Id == cell.FractionDefId).Color : null;
                 var colorAttack = cell.IsStroked ? db.Fractions.First(x => x.Id == cell.FractionAttackId).Color : null;
                 HomeModel.Cells.Add(new ObjectCell(cell.X, cell.Y, cell.IsFilled, cell.IsStroked, colorAttack, colorDef));
             }
+
+            var user = dbUser.Users.First(u => u.Email == HttpContext.User.Identity.Name);
+            var profile = dbUser.Profiles.First(p => p.UserId == user.Id);
             return View();
         }
 
+        //public async Task<IActionResult> SendMessage(HomeModel model)
+        //{
+        //    var user = dbUser.Users.First(u => u.Email == HttpContext.User.Identity.Name);
+        //    var profile = dbUser.Profiles.First(p => p.UserId == user.Id);
+        //    MainLogic.Chat.Chats[profile.FractionId].Add(new ChatMessage(user.Id, model.UserMessage, DateTime.Now, profile.FractionId));
+        //    MainLogic.Chat.Users.Add(new User(){Id = user.Id, Nickname = user.Nickname});
+        //    return View("Index", new HomeModel(profile.FractionId));
+        //}
+
+        public int GetCurrentUserFraction(UserContext context)
+        {
+            var user = dbUser.Users.First(u => u.Email == HttpContext.User.Identity.Name);
+            var profile = dbUser.Profiles.First(p => p.UserId == user.Id);
+            return profile.FractionId;
+        }
+
+        [HttpGet]
+        [Route("UpdateChat")]
+        public JsonResult UpdateChat()
+        {
+            var fractionId = GetCurrentUserFraction(dbUser);
+            var tmp = new JsonResult(new HomeModel(fractionId).Messages);
+            return tmp;
+        }
+
+        [HttpPost]
+        [Route("SendMessage")]
+        public void SendMessage(string message)
+        {
+            var user = dbUser.Users.First(u => u.Email == HttpContext.User.Identity.Name);
+            var profile = dbUser.Profiles.First(p => p.UserId == user.Id);
+            MainLogic.Chat.Chats[profile.FractionId].Add(new ChatMessage(user.Id, message, DateTime.Now, profile.FractionId));
+            MainLogic.Chat.Users.Add(new User() { Id = user.Id, Nickname = user.Nickname });
+        }
     }
 }

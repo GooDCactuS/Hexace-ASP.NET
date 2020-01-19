@@ -12,13 +12,18 @@ namespace Hexace
     public class Chat
     {
         private ChatContext db;
+        private UserContext dbUser;
+        public List<User> Users { get; set; }
         public Dictionary<int, List<ChatMessage>> Chats { get; set; }
 
-        public Chat(ChatContext context)
+        public Chat(ChatContext context, UserContext userContext)
         {
             db = context;
+            dbUser = userContext;
             
             Chats = new Dictionary<int, List<ChatMessage>>();
+            Users = new List<User>(dbUser.Users.ToList());
+
             for (int i = 1; i < 4; i++)
             {
                 var fracChat = db.ChatMessages.Where(x => x.FractionId == i); 
@@ -40,14 +45,15 @@ namespace Hexace
             {
                 foreach (var message in Chats[i])
                 {
-                    if (db.ChatMessages.First(x => x.Id == message.Id) == null)
+                    if (message.Id == 0)
                     {
                         db.ChatMessages.Add(message);
+                        await db.SaveChangesAsync();
                     }
                 }
             }
 
-            await db.SaveChangesAsync();
+            
         }
     }
 }

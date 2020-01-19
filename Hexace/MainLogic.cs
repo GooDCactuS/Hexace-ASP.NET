@@ -20,7 +20,7 @@ namespace Hexace
         {
             SeasonId = 1;
             FractionStats = new FractionStats(services.GetService<FractionScoreContext>());
-            Chat = new Chat(services.GetService<ChatContext>());
+            Chat = new Chat(services.GetService<ChatContext>(), services.GetService<UserContext>());
         }
 
         public void UpdateInfo()
