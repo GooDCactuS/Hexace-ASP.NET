@@ -61,104 +61,70 @@
                 btn.click();
             };
             draw(board);
-            //board = drawBoard(boardWidth); //первичная отрисовка
-            canvas.addEventListener("mousemove", function (eventInfo) { //слушатель перемещения мыши
-                var x = (eventInfo.offsetX || eventInfo.layer) * canvas.width / canvas.scrollWidth;
-                var y = (eventInfo.offsetY || eventInfo.layerY) * canvas.height / canvas.scrollHeight;
-                var hexY = Math.floor(y / (hexHeight + sideLength));
-                var hexX = Math.floor((x - (hexY % 2) * hexRadius) / hexRectangleWidth);
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                draw(board); //перерисовка на mousemove
-                //На доске ли координаты мыши
-                var obj = { x: hexX, y: hexY, color: ctx };
-                if (board.some(item => (item.x === obj.x) && (item.y === obj.y))) {
-                    ctx.lineWidth = 4;
-                    drawHexagon(ctx, obj.x, obj.y,"", false, true);
-                    ctx.lineWidth = 2;
-                }
-            });
-            canvas.addEventListener("mousedown", function (eventInfo) { //слушатель нажатий мыши
-                var x = (eventInfo.offsetX || eventInfo.layer) * canvas.width / canvas.scrollWidth;
-                var y = (eventInfo.offsetY || eventInfo.layerY) * canvas.height / canvas.scrollHeight;
-                var hexY = Math.floor(y / (hexHeight + sideLength));
-                var hexX = Math.floor((x - (hexY % 2) * hexRadius) / hexRectangleWidth);
-                //document.getElementById("arrLength").textContent = board.length;
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                //На доске ли координаты мыши
-                var obj = { x: hexX, y: hexY, color: ctx };
-                if (board.some(item => (item.x === obj.x) && (item.y === obj.y))) {
-                    index = board.findIndex(item => (item.x === obj.x) && (item.y === obj.y));
-                    if (board[index].isFill)
-                        board[index].isFill = false;
-                    else board[index].isFill = true;
-                    board[index].color = "#F080FF";
-                }
-                draw(board);
-            });
+        });
+    }
+    function draw(board) {
+        for (var k = 0; k < board.length; k++) {
+            if (board[k].isFilled)
+                ctx.fillStyle = board[k].colorDef;
+            drawHexagon(ctx, board[k].x, board[k].y,board[k].colorAttack, board[k].isFilled, board[k].isStroked);
         }
-        function draw(board) {
-            for (var k = 0; k < board.length; k++) {
-                if (board[k].isFilled)
-                    ctx.fillStyle = board[k].colorDef;
-                drawHexagon(ctx, board[k].x, board[k].y,board[k].colorAttack, board[k].isFilled, board[k].isStroked);
+    }
+    function drawBoard(width) {
+        board = new Array();
+        var side = 10;
+        var start = side - 1;
+        //отступ в зависимости от количества ячеек
+        var indent = 0;
+        for (var j = 0; j < side * 2 - 1; j++) {
+            if (j < side) {
+                start++;
+                if (start % 2 == 0)
+                    indent++;
+            }
+            else {
+                start--;
+                if (start % 2 == 1)
+                    indent--;
+            }
+            for (var i = width / 2 - start + indent; i < width / 2 + indent; i++) {
+                drawHexagon(ctx, i, j, false);
+                var obj = { x: i, y: j, color: ctx.fillStyle, isFill: false };
+                board.push(obj);
             }
         }
-        function drawBoard(width) {
-            board = new Array();
-            var side = 10;
-            var start = side - 1;
-            //отступ в зависимости от количества ячеек
-            var indent = 0;
-            for (var j = 0; j < side * 2 - 1; j++) {
-                if (j < side) {
-                    start++;
-                    if (start % 2 == 0)
-                        indent++;
-                }
-                else {
-                    start--;
-                    if (start % 2 == 1)
-                        indent--;
-                }
-
-                for (var i = width / 2 - start + indent; i < width / 2 + indent; i++) {
-                    drawHexagon(ctx, i, j, false);
-                    var obj = { x: i, y: j, color: ctx.fillStyle, isFill: false };
-                    board.push(obj);
-                }
-            }
-            return board;
-        }
-        function drawHexagon(canvasContext, x, y, colorAttack, fill = false, stroke = false)
-        {
-            x = x * hexRectangleWidth + ((y % 2) * hexRadius);//приведение координат
-            y = y * (hexHeight + sideLength);
-            canvasContext.strokeStyle = "#ff132c";
+        return board;
+    }
+            function drawHexagon(canvasContext, x, y, colorAttack, fill = false, stroke = false)
+            {
+                x = x * hexRectangleWidth + ((y % 2) * hexRadius);//приведение координат
+                y = y * (hexHeight + sideLength);
+                canvasContext.strokeStyle = "#ff132c";
             canvasContext.beginPath();
-            canvasContext.moveTo(x + hexRadius, y);
-            canvasContext.lineTo(x + hexRectangleWidth, y + hexHeight);
-            canvasContext.lineTo(x + hexRectangleWidth, y + hexHeight + sideLength);
-            canvasContext.lineTo(x + hexRadius, y + hexRectangleHeight);
-            canvasContext.lineTo(x, y + sideLength + hexHeight);
-            canvasContext.lineTo(x, y + hexHeight);
-            canvasContext.closePath();
-            if (fill) canvasContext.fill();
-            canvasContext.stroke();
-            if (stroke) {
+                canvasContext.moveTo(x + hexRadius, y);
+        canvasContext.lineTo(x + hexRectangleWidth, y + hexHeight);
+        canvasContext.lineTo(x + hexRectangleWidth, y + hexHeight + sideLength);
+        canvasContext.lineTo(x + hexRadius, y + hexRectangleHeight);
+        canvasContext.lineTo(x, y + sideLength + hexHeight);
+        canvasContext.lineTo(x, y + hexHeight);
+        canvasContext.closePath();
+        if (fill) canvasContext.fill();
+                canvasContext.stroke();
+                if (stroke) {
                 canvasContext.strokeStyle=colorAttack;
                 canvasContext.beginPath();
                 canvasContext.moveTo(x + hexRectangleWidth, y + hexHeight);
-                canvasContext.lineTo(x, y + sideLength + hexHeight);
+                    canvasContext.lineTo(x, y + sideLength + hexHeight);
                 canvasContext.closePath();
-                canvasContext.stroke();
+                    canvasContext.stroke();
                 canvasContext.beginPath();
                 canvasContext.lineTo(x, y + hexHeight);
                 canvasContext.lineTo(x + hexRectangleWidth, y + sideLength + hexHeight);
                 canvasContext.closePath();
                 canvasContext.stroke();
-            }
-        }
-    });
+                }
+    }
+});
 
 </script>
 <div class="canvas-container">
@@ -175,11 +141,11 @@
 
 </div>
 <form method="post" asp-controller="Home" asp-action="BoardActionResult">
-    <input asp-for="Y" type="hidden" id="cellY" value="3"/>
-    <input asp-for="Id" type="hidden" id="cellId" value="5"/>
-    <input asp-for="X" type="hidden" id="cellX" value="23"/>
+    <input asp-for="Y" type="hidden" id="cellY" value="3" />
+    <input asp-for="Id" type="hidden" id="cellId" value="5" />
+    <input asp-for="X" type="hidden" id="cellX" value="23" />
     <input asp-for="CellString" type="hidden" id="cells_str" />
-    <input type="submit" id="btn_submit" value="Take Hex"  class="btn-signin" />
+    <input type="submit" id="btn_submit" value="Take Hex" class="btn-signin" />
 </form>
 
 <div>
@@ -192,38 +158,38 @@
         <input type="button" value="Send" class="buttons" onclick="sendMessage()" />
     </form>
 </div>
-<script>
-    $(function () {
-        updateChat();
-        setInterval(updateChat, 5000);
-    });
+@*<script>
+        $(function () {
+            updateChat();
+            setInterval(updateChat, 5000);
+        });
 
-    function updateChat() {
-        $.ajax({
-            url: 'UpdateChat',
-            type: 'Get',
-            success: function (result) {
-                var chat = "";
-                for (var i = 0; i < result.length; i++) {
-                    chat += result[i] + "\r\n";
+        function updateChat() {
+            $.ajax({
+                url: 'UpdateChat',
+                type: 'Get',
+                success: function (result) {
+                    var chat = "";
+                    for (var i = 0; i < result.length; i++) {
+                        chat += result[i] + "\r\n";
+                    }
+                    document.getElementById("gameChat").value = chat;
                 }
-                document.getElementById("gameChat").value = chat;
-            }
-        });
-    }
+            });
+        }
 
-    function sendMessage() {
-        var messageText = document.getElementById("message").value;
-        document.getElementById("message").value = "";
-        $.ajax({
-            url: 'SendMessage',
-            type: 'Post',
-            data: { message: messageText },
-            success: function () { updateChat(); }
-        });
-        
-    }
+        function sendMessage() {
+            var messageText = document.getElementById("message").value;
+            document.getElementById("message").value = "";
+            $.ajax({
+                url: 'SendMessage',
+                type: 'Post',
+                data: { message: messageText },
+                success: function () { updateChat(); }
+            });
 
-</script>
+        }
+
+    </script>*@
 
 <noscript><div>Извините, требуется включённый Javascript для работы приложения!</div></noscript>
