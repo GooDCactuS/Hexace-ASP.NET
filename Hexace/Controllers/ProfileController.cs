@@ -37,7 +37,7 @@ namespace Hexace.Controllers
         {
             if (ModelState["Email"].ValidationState == ModelValidationState.Valid && ModelState["Password"].ValidationState == ModelValidationState.Valid)
             {
-                var user = await db.users.FirstOrDefaultAsync(u => u.Email == model.Email && u.Password == model.Password);
+                var user = await db.Users.FirstOrDefaultAsync(u => u.Email == model.Email && u.Password == model.Password);
                 if (user != null)
                 {
                     await Authenticate(model.Email);
@@ -66,42 +66,46 @@ namespace Hexace.Controllers
         {
             if (ModelState.IsValid)
             {
-                User user = await db.users.FirstAsync(u =>
-                    u.Email == model.Email && u.Password == model.Password);
-                if (user==null)
+                if (model.Password != model.PasswordConfirmation)
                 {
-                    db.users.Add(new User
-                    {
-                        Nickname = model.Nickname,
-                        Email = model.Email,
-                        Password = model.Password,
-                        RegistrationDate = DateTime.Today.Date,
-                        UserType = "Player"
-                    });
-
-                    await db.SaveChangesAsync();
-
-                    db.Profiles.Add(new Profile
-                    {
-                        AttackAttempts = 0,
-                        DefenseAttempts = 0,
-                        SeasonId = 1,
-                        FractionId = new Random().Next(1, 4),
-                        SuccessfulAttacks = 0,
-                        SuccessfulDefences = 0,
-                        UserId = db.Users.First(x => x.Nickname == model.Nickname).Id
-                    });
-
-                    await db.SaveChangesAsync();
-                    await Authenticate(model.Email);
-
-                    return RedirectToAction("Index", "Home");
+                    ModelState.AddModelError("", "Password and password confirmation field are not the same.");
                 }
                 else
                 {
-                    Console.WriteLine("User is not found.");
+                    User user = await db.Users.FirstOrDefaultAsync(u =>
+                        u.Email == model.Email || u.Nickname == model.Nickname);
+                    if (user == null)
+                    {
+                        db.Users.Add(new User
+                        {
+                            Nickname = model.Nickname,
+                            Email = model.Email,
+                            Password = model.Password,
+                            RegistrationDate = DateTime.Today.Date,
+                            UserType = "Player"
+                        });
+
+                        await db.SaveChangesAsync();
+
+                        db.Profiles.Add(new Profile
+                        {
+                            AttackAttempts = 0,
+                            DefenseAttempts = 0,
+                            SeasonId = 1,
+                            FractionId = new Random().Next(1, 4),
+                            SuccessfulAttacks = 0,
+                            SuccessfulDefences = 0,
+                            UserId = db.Users.First(x => x.Nickname == model.Nickname).Id
+                        });
+
+                        await db.SaveChangesAsync();
+                        await Authenticate(model.Email);
+
+                        return RedirectToAction("Index", "Home");
+                    }
+
+                    ModelState.AddModelError("", "User with this email or nickname exists.");
                 }
-                ModelState.AddModelError("", "Incorrect email or password.");
             }
 
             return View("Login", model);
