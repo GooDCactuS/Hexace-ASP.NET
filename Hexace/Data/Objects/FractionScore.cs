@@ -16,7 +16,7 @@ namespace Hexace.Data.Objects
         public int SuccessfulAttacks { get; set; }
         public int DefenseAttempts { get; set; }
         public int SuccessfulDefences { get; set; }
-        public DateTime ScoreDatetime { get; set; }
+        public DateTime ScoreDatetime { get; set; } 
 
         public FractionScore(){}
 

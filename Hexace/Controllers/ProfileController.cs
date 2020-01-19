@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hexace.Controllers
@@ -36,16 +37,20 @@ namespace Hexace.Controllers
         {
             if (ModelState["Email"].ValidationState == ModelValidationState.Valid && ModelState["Password"].ValidationState == ModelValidationState.Valid)
             {
-                User user = await db.Users.FirstOrDefaultAsync(u => u.Email == model.Email && u.Password == model.Password);
+                var user = await db.users.FirstOrDefaultAsync(u => u.Email == model.Email && u.Password == model.Password);
                 if (user != null)
                 {
                     await Authenticate(model.Email);
 
                     return RedirectToAction("Index", "Home");
                 }
-                ModelState.AddModelError("", "Incorrect email or password.");
+                else
+                {
+                    return RedirectToAction("Index", "Home");
+                }
+                
             }
-
+            ModelState.AddModelError("", "Incorrect email or password.");
             return View("Login", model);
         }
 
@@ -61,11 +66,11 @@ namespace Hexace.Controllers
         {
             if (ModelState.IsValid)
             {
-                User user = await db.Users.FirstOrDefaultAsync(u =>
+                User user = await db.users.FirstAsync(u =>
                     u.Email == model.Email && u.Password == model.Password);
-                if (user == null)
+                if (user==null)
                 {
-                    db.Users.Add(new User
+                    db.users.Add(new User
                     {
                         Nickname = model.Nickname,
                         Email = model.Email,
@@ -91,6 +96,10 @@ namespace Hexace.Controllers
                     await Authenticate(model.Email);
 
                     return RedirectToAction("Index", "Home");
+                }
+                else
+                {
+                    Console.WriteLine("User is not found.");
                 }
                 ModelState.AddModelError("", "Incorrect email or password.");
             }
