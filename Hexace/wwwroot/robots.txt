@@ -1,0 +1,5 @@
+﻿User-agent: Googlebot
+Disallow: /Profile
+
+User-agent: Yandex
+Disallow: /Profile
