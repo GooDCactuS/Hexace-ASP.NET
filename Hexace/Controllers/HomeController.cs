@@ -22,12 +22,30 @@ namespace Hexace.Controllers
         {
             db = context;
         }
+
         [HttpPost]
         [Authorize]
-        public IActionResult In
+        public IActionResult BoardActionResult(HomeModel model)
+        {
+            db.FieldCells.Update(new FieldCell
+            {
+                Id = model.Id,
+                X = model.X,
+                Y = model.Y,
+                //Получение id фракции игрока
+                FractionAttackId = 2,
+                FractionDefId = db.FieldCells.First(x => x.Id == model.Id).FractionDefId,
+                IsFilled = db.FieldCells.First(x => x.Id == model.Id).IsFilled,
+                IsStroked = true
+            });
+            db.SaveChangesAsync();
+            model.Cells[model.Id].isStroked = true;
+            model.Cells[model.Id].colorAttack =db.Fractions.First(x => x.Id == 2).Color; //проверка fraction id пользователя
+            return View("Index", model);
+        }
         [HttpGet]
         [Authorize]
-        public IActionResult Index()
+        public IActionResult Index(HomeModel model)
         {
             var fractions = db.Fractions.ToList();
             //var side = 10;
@@ -67,14 +85,14 @@ namespace Hexace.Controllers
             //    }
             //}
 
-            HomeModel.Cells.Clear();
+            model.Cells.Clear();
             foreach (var cell in db.FieldCells.ToList())
             {
                 var colorDef= cell.IsFilled?db.Fractions.First(x=>x.Id==cell.FractionDefId).Color:null;
                 var colorAttack = cell.IsStroked ? db.Fractions.First(x => x.Id == cell.FractionAttackId).Color : null;
-                HomeModel.Cells.Add(new ObjectCell(cell.X, cell.Y, cell.IsFilled, cell.IsStroked, colorAttack, colorDef));
+                model.Cells.Add(new ObjectCell(cell.X, cell.Y, cell.IsFilled, cell.IsStroked, colorAttack, colorDef));
             }
-            return View();
+            return View(model);
         }
 
     }

@@ -4,10 +4,8 @@
 @model HomeModel
 <script src="/lib/jquery/dist/jquery.js"></script>
 <script>
-
-
         $(function () {
-            var board = JSON.parse('@Html.Raw((HomeModel.GetJsonString()))');
+            var board = JSON.parse('@Html.Raw((HomeModel.GetJsonString(Model.Cells)))');
     var canvas = document.getElementById('hexagonCanvas');
     if (canvas == null) return;
     var hexHeight,
@@ -54,10 +52,11 @@
             var obj = { x: hexX, y: hexY, color: ctx };
             if (board.some(item => (item.x === obj.x) && (item.y === obj.y))) {
                 index = board.findIndex(item => (item.x === obj.x) && (item.y === obj.y));
-                if (board[index].isFill)
-                    board[index].isFill = false;
-                else board[index].isFill = true;
-                board[index].color = "#F080FF";
+                document.getElementById("cellY").value = hexY;
+                document.getElementById("cellX").value = hexX;
+                document.getElementById("cellId").value = index;
+                var btn = document.getElementById("btn_submit");
+                btn.click();
             }
             draw(board);
         });
@@ -138,7 +137,11 @@
         </canvas>
     </div>
 </div>
+<form method="post" asp-controller="Home" asp-action="BoardActionResult">
+    <input asp-for="Y" type="hidden" id="cellY" value="3"/>
+    <input asp-for="Id" type="hidden" id="cellId" value="5"/>
+    <input asp-for="X" type="hidden" id="cellX" value="23"/>
+    <input type="submit" id="btn_submit" value="Take Hex"  class="btn-signin" />
+</form>
 
-<input type="hidden" id="cellY" name="cellY" />
-<input type="hidden" id="cellX" name="cellX" />
 <noscript><div>Извините, требуется включённый Javascript для работы приложения!</div></noscript>

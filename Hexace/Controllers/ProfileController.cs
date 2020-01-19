@@ -67,7 +67,7 @@ namespace Hexace.Controllers
         {
             if (ModelState.IsValid)
             {
-                User user = await db.users.FirstAsync(u =>
+                User user = await db.users.FirstOrDefaultAsync(u =>
                     u.Email == model.Email && u.Password == model.Password);
                 if (user==null)
                 {
@@ -83,7 +83,8 @@ namespace Hexace.Controllers
                     await Authenticate(model.Email);
 
                     return RedirectToAction("Index", "Home");
-                }else
+                }
+                else
                 {
                     Console.WriteLine("User is not found.");
                 }
