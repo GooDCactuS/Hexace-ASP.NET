@@ -9,11 +9,11 @@ namespace Hexace.Data
 {
     public class CellContext:DbContext
     {
-        public DbSet<Cell> Cells { get; set; }
+        public DbSet<Fraction> Fractions { get; set; }
+        public DbSet<FieldCell> FieldCells { get; set; }
 
         public CellContext(DbContextOptions<CellContext> options) : base(options)
         {
-            Database.EnsureCreated();
         }
     }
 }

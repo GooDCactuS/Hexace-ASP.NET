@@ -38,7 +38,7 @@ namespace Hexace.Controllers
             
             if(ModelState["Email"].ValidationState == ModelValidationState.Valid && ModelState["Password"].ValidationState == ModelValidationState.Valid)
             {
-                var user = await db.users.FirstOrDefaultAsync(u => u.email == model.Email && u.password == model.Password);
+                var user = await db.users.FirstOrDefaultAsync(u => u.Email == model.Email && u.Password == model.Password);
                 if (user != null)
                 {
                     await Authenticate(model.Email);
@@ -49,9 +49,9 @@ namespace Hexace.Controllers
                 {
                     return RedirectToAction("Index", "Home");
                 }
-                ModelState.AddModelError("", "Incorrect email or password.");
+                
             }
-
+            ModelState.AddModelError("", "Incorrect email or password.");
             return View("Login", model);
         }
 
@@ -68,26 +68,16 @@ namespace Hexace.Controllers
             if (ModelState.IsValid)
             {
                 User user = await db.users.FirstAsync(u =>
-                    u.email == model.Email && u.password == model.Password);
+                    u.Email == model.Email && u.Password == model.Password);
                 if (user==null)
                 {
                     db.users.Add(new User
                     {
-<<<<<<< Updated upstream
-                        user_id = 7,
-                        nickname = model.Nickname,
-                        email = model.Email,
-                        password = model.Password,
-                        datetime = DateTime.Now.ToLocalTime(),
-                        last_signin = DateTime.Now.ToLocalTime(),
-                        user_type_id = 1
-=======
                         Nickname = model.Nickname,
                         Email = model.Email,
                         Password = model.Password,
                         RegistrationDate = DateTime.Today.Date,
                         UserType = "Player"
->>>>>>> Stashed changes
                     }); 
                     await db.SaveChangesAsync();
                     await Authenticate(model.Email);
