@@ -30,7 +30,7 @@ namespace Hexace.Controllers
         [Authorize]
         public IActionResult BoardActionResult(HomeModel model)
         {
-            var editCell = db.FieldCells.First(x => x.X==model.X&& x.Y== model.Y);
+            var editCell = db.FieldCells.First(x => x.X == model.X && x.Y == model.Y);
             editCell.IsStroked = true;
             editCell.FractionAttackId = 2;
             //db.FieldCells.Update(new FieldCell
@@ -49,10 +49,10 @@ namespace Hexace.Controllers
             model.Cells = HomeModel.GetObjectCells(model.CellString); //нужно понять как нормально десериализировать
 
             model.Cells[model.Id].isStroked = true;
-            model.Cells[model.Id].colorAttack =db.Fractions.First(x => x.Id == 2).Color; //проверка fraction id пользователя
+            model.Cells[model.Id].colorAttack = db.Fractions.First(x => x.Id == 2).Color; //проверка fraction id пользователя
             return View("Index", model);
         }
-        
+
         [HttpGet]
         [Authorize]
         public IActionResult Index(HomeModel model)
@@ -95,7 +95,7 @@ namespace Hexace.Controllers
                 }
             }
 
-            model.Cells= new List<ObjectCell>();
+            model.Cells = new List<ObjectCell>();
             foreach (var cell in db.FieldCells.ToList())
             {
                 var colorDef = cell.IsFilled ? db.Fractions.First(x => x.Id == cell.FractionDefId).Color : null;
@@ -103,8 +103,6 @@ namespace Hexace.Controllers
                 model.Cells.Add(new ObjectCell(cell.X, cell.Y, cell.IsFilled, cell.IsStroked, colorAttack, colorDef));
             }
 
-            var user = dbUser.Users.First(u => u.Email == HttpContext.User.Identity.Name);
-            var profile = dbUser.Profiles.First(p => p.UserId == user.Id);
             model.CellString = HomeModel.GetJsonString(model.Cells);
             return View(model);
         }
