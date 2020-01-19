@@ -27,18 +27,24 @@ namespace Hexace.Controllers
         [Authorize]
         public IActionResult BoardActionResult(HomeModel model)
         {
-            db.FieldCells.Update(new FieldCell
-            {
-                Id = model.Id,
-                X = model.X,
-                Y = model.Y,
-                //Получение id фракции игрока
-                FractionAttackId = 2,
-                FractionDefId = db.FieldCells.First(x => x.Id == model.Id).FractionDefId,
-                IsFilled = db.FieldCells.First(x => x.Id == model.Id).IsFilled,
-                IsStroked = true
-            });
-            db.SaveChangesAsync();
+            var editCell = db.FieldCells.First(x => x.X==model.X&& x.Y== model.Y);
+            editCell.IsStroked = true;
+            editCell.FractionAttackId = 2;
+            //db.FieldCells.Update(new FieldCell
+            //{
+            //    Id = model.Id,
+            //    X = model.X,
+            //    Y = model.Y,
+            //    //Получение id фракции игрока
+            //    FractionAttackId = 2,
+            //    FractionDefId = db.FieldCells.First(x => x.Id == model.Id).FractionDefId,
+            //    IsFilled = db.FieldCells.First(x => x.Id == model.Id).IsFilled,
+            //    IsStroked = true
+            //});
+            db.SaveChanges();
+
+            model.Cells = HomeModel.GetObjectCells(model.CellString); //нужно понять как нормально десериализировать
+
             model.Cells[model.Id].isStroked = true;
             model.Cells[model.Id].colorAttack =db.Fractions.First(x => x.Id == 2).Color; //проверка fraction id пользователя
             return View("Index", model);
@@ -48,50 +54,51 @@ namespace Hexace.Controllers
         public IActionResult Index(HomeModel model)
         {
             var fractions = db.Fractions.ToList();
-            //var side = 10;
-            //var width = 30;
-            //var start = side - 1;
-            //var count = 0;
-            ////отступ в зависимости от количества ячеек
-            //var indent = 0;
-            //for (var j = 0; j < side * 2 - 1; j++)
-            //{
-            //    if (j < side)
-            //    {
-            //        start++;
-            //        if (start % 2 == 0)
-            //            indent++;
-            //    }
-            //    else
-            //    {
-            //        start--;
-            //        if (start % 2 == 1)
-            //            indent--;
-            //    }
+            var side = 10;
+            var width = 30;
+            var start = side - 1;
+            var count = 0;
+            //отступ в зависимости от количества ячеек
+            var indent = 0;
+            for (var j = 0; j < side * 2 - 1; j++)
+            {
+                if (j < side)
+                {
+                    start++;
+                    if (start % 2 == 0)
+                        indent++;
+                }
+                else
+                {
+                    start--;
+                    if (start % 2 == 1)
+                        indent--;
+                }
 
-            //    for (var i = width / 2 - start + indent; i < width / 2 + indent; i++)
-            //    {
-            //        var obj = (x: i, y: j, color: fractions[0].Color, isFill: false);
-            //        if (!db.FieldCells.Any(x => x.X == i && x.Y == j))
-            //            db.FieldCells.Add(new FieldCell
-            //            {
-            //                Id = ++count,
-            //                X = i,
-            //                Y = j,
-            //                IsFilled = false,
-            //                IsStroked = false
-            //            });
-            //        db.SaveChanges();
-            //    }
-            //}
+                for (var i = width / 2 - start + indent; i < width / 2 + indent; i++)
+                {
+                    var obj = (x: i, y: j, color: fractions[0].Color, isFill: false);
+                    if (!db.FieldCells.Any(x => x.X == i && x.Y == j))
+                        db.FieldCells.Add(new FieldCell
+                        {
+                            Id = ++count,
+                            X = i,
+                            Y = j,
+                            IsFilled = false,
+                            IsStroked = false
+                        });
+                    db.SaveChanges();
+                }
+            }
 
-            model.Cells.Clear();
+            model.Cells= new List<ObjectCell>();
             foreach (var cell in db.FieldCells.ToList())
             {
                 var colorDef= cell.IsFilled?db.Fractions.First(x=>x.Id==cell.FractionDefId).Color:null;
                 var colorAttack = cell.IsStroked ? db.Fractions.First(x => x.Id == cell.FractionAttackId).Color : null;
                 model.Cells.Add(new ObjectCell(cell.X, cell.Y, cell.IsFilled, cell.IsStroked, colorAttack, colorDef));
             }
+            model.CellString = HomeModel.GetJsonString(model.Cells);
             return View(model);
         }
 

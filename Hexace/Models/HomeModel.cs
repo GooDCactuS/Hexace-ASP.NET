@@ -39,13 +39,19 @@ namespace Hexace.Models
     
     public class HomeModel
     {
-        public List<ObjectCell> Cells= new List<ObjectCell>();
-        public int Y;
-        public int X;
-        public int Id;
+        public List<ObjectCell> Cells { get; set; }
+        public int Y { get; set; }
+        public int X { get; set; }
+        public int Id { get; set; }
+        public string CellString { get; set; }
+
+        public static List<ObjectCell> GetObjectCells(string str)
+        {
+            return JsonConvert.DeserializeObject<ObjectCell[]>(str).ToList();
+        }
         public static string GetJsonString(List<ObjectCell> cells)
         {
-            return JsonConvert.SerializeObject(cells.ToArray());
+            return JsonConvert.SerializeObject(cells);
         }
     }
 }
