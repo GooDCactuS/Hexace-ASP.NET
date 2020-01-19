@@ -14,17 +14,19 @@ namespace Hexace
     {
         public static int SeasonId { get; private set; }
         public static FractionStats FractionStats { get; private set; }
+        public static Chat Chat { get; private set; }
 
         public MainLogic(IServiceProvider services)
         {
             SeasonId = 1;
             FractionStats = new FractionStats(services.GetService<FractionScoreContext>());
+            Chat = new Chat(services.GetService<ChatContext>());
         }
 
         public void UpdateInfo()
         {
             FractionStats.UpdateStats();
-            //StatisticsController.UpdateStatistics();
+            Chat.UpdateMessages();
         }
     }
 }
