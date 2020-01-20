@@ -35,6 +35,7 @@ namespace Hexace
                     mainLogic.UpdateInfo();
                 }
             });
+
             host.Run();
         }
 

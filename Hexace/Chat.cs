@@ -11,18 +11,16 @@ namespace Hexace
 {
     public class Chat
     {
-        private ChatContext db;
-        private UserContext dbUser;
+        private HexaceContext db;
         public List<User> Users { get; set; }
         public Dictionary<int, List<ChatMessage>> Chats { get; set; }
 
-        public Chat(ChatContext context, UserContext userContext)
+        public Chat(HexaceContext context)
         {
             db = context;
-            dbUser = userContext;
             
             Chats = new Dictionary<int, List<ChatMessage>>();
-            Users = new List<User>(dbUser.Users.ToList());
+            Users = new List<User>(db.Users.ToList());
 
             for (int i = 1; i < 4; i++)
             {
@@ -39,7 +37,7 @@ namespace Hexace
         public async void UpdateMessages()
         {
             var scope = Program.host.Services.CreateScope();
-            db = scope.ServiceProvider.GetService<ChatContext>();
+            db = scope.ServiceProvider.GetService<HexaceContext>();
             //db.Database.OpenConnection();
             for (int i = 1; i < 4; i++)
             {

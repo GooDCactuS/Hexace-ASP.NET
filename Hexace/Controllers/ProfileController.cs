@@ -18,9 +18,9 @@ namespace Hexace.Controllers
 {
     public class ProfileController : Controller
     {
-        private UserContext db;
+        private HexaceContext db;
 
-        public ProfileController(UserContext context)
+        public ProfileController(HexaceContext context)
         {
             db = context;
         }

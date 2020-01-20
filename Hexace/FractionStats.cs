@@ -11,7 +11,7 @@ namespace Hexace
 {
     public class FractionStats
     {
-        private FractionScoreContext db;
+        private HexaceContext db;
 
         public static Dictionary<string, FractionScore> FractionInfo { get; set; }
 
@@ -22,7 +22,7 @@ namespace Hexace
                 {"Purple", FractionInfo["Purple"].Score}
             };
 
-        public FractionStats(FractionScoreContext context)
+        public FractionStats(HexaceContext context)
         {
             db = context;
 
@@ -55,7 +55,7 @@ namespace Hexace
         public async void UpdateStats()
         {
             var scope = Program.host.Services.CreateScope();
-            db = scope.ServiceProvider.GetService<FractionScoreContext>();
+            db = scope.ServiceProvider.GetService<HexaceContext>();
             foreach (var item in FractionInfo.Values)
             {
                 db.Database.OpenConnection();

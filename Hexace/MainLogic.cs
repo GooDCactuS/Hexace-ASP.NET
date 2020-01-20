@@ -19,8 +19,13 @@ namespace Hexace
         public MainLogic(IServiceProvider services)
         {
             SeasonId = 1;
-            FractionStats = new FractionStats(services.GetService<FractionScoreContext>());
-            Chat = new Chat(services.GetService<ChatContext>(), services.GetService<UserContext>());
+            FractionStats = new FractionStats(services.GetService<HexaceContext>());
+            Chat = new Chat(services.GetService<HexaceContext>());
+        }
+
+        public void UpdateChat()
+        {
+            Chat.UpdateMessages();
         }
 
         public void UpdateInfo()

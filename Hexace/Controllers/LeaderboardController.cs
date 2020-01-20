@@ -12,9 +12,9 @@ namespace Hexace.Controllers
 {
     public class LeaderboardController : Controller
     {
-        private UserContext db;
+        private HexaceContext db;
 
-        public LeaderboardController(UserContext context)
+        public LeaderboardController(HexaceContext context)
         {
             db = context;
         }

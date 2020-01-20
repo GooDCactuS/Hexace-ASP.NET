@@ -5,8 +5,8 @@
 
 <script src="/lib/jquery/dist/jquery.js"></script>
 <script>
-        $(function () {
-            var board = JSON.parse('@Html.Raw((HomeModel.GetJsonString(Model.Cells)))');
+    $(function () {
+        var board = JSON.parse('@Html.Raw(Model.CellString)');
     var canvas = document.getElementById('hexagonCanvas');
     if (canvas == null) return;
     var hexHeight,
@@ -42,15 +42,18 @@
                 ctx.lineWidth = 2;
             }
         });
+
         canvas.addEventListener("mousedown", function (eventInfo) { //слушатель нажатий мыши
             var x = (eventInfo.offsetX || eventInfo.layer) * canvas.width / canvas.scrollWidth;
             var y = (eventInfo.offsetY || eventInfo.layerY) * canvas.height / canvas.scrollHeight;
             var hexY = Math.floor(y / (hexHeight + sideLength));
             var hexX = Math.floor((x - (hexY % 2) * hexRadius) / hexRectangleWidth);
+
             //document.getElementById("arrLength").textContent = board.length;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             //На доске ли координаты мыши
             var obj = { x: hexX, y: hexY, color: ctx };
+
             if (board.some(item => (item.x === obj.x) && (item.y === obj.y))) {
                 index = board.findIndex(item => (item.x === obj.x) && (item.y === obj.y));
                 document.getElementById("cellY").value = hexY;
@@ -60,6 +63,7 @@
                 var btn = document.getElementById("btn_submit");
                 btn.click();
             };
+
             draw(board);
         });
     }
@@ -70,31 +74,7 @@
             drawHexagon(ctx, board[k].x, board[k].y,board[k].colorAttack, board[k].isFilled, board[k].isStroked);
         }
     }
-    function drawBoard(width) {
-        board = new Array();
-        var side = 10;
-        var start = side - 1;
-        //отступ в зависимости от количества ячеек
-        var indent = 0;
-        for (var j = 0; j < side * 2 - 1; j++) {
-            if (j < side) {
-                start++;
-                if (start % 2 == 0)
-                    indent++;
-            }
-            else {
-                start--;
-                if (start % 2 == 1)
-                    indent--;
-            }
-            for (var i = width / 2 - start + indent; i < width / 2 + indent; i++) {
-                drawHexagon(ctx, i, j, false);
-                var obj = { x: i, y: j, color: ctx.fillStyle, isFill: false };
-                board.push(obj);
-            }
-        }
-        return board;
-    }
+
             function drawHexagon(canvasContext, x, y, colorAttack, fill = false, stroke = false)
             {
                 x = x * hexRectangleWidth + ((y % 2) * hexRadius);//приведение координат
