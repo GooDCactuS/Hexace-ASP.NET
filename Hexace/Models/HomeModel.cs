@@ -36,12 +36,12 @@ namespace Hexace.Models
         public bool isFilled;
         public bool isStroked;
     }
-    
+
     public class HomeModel
     {
         public string UserMessage { get; set; }
         public List<string> Messages { get; set; }
-        
+
         public List<ObjectCell> Cells { get; set; }
         public int Y { get; set; }
         public int X { get; set; }
@@ -52,7 +52,7 @@ namespace Hexace.Models
         {
             return JsonConvert.DeserializeObject<ObjectCell[]>(str).ToList();
         }
-        
+
         public static string GetJsonString(List<ObjectCell> cells)
         {
             return JsonConvert.SerializeObject(cells);
@@ -63,14 +63,17 @@ namespace Hexace.Models
 
         }
 
-        public HomeModel(int fractionId)
+        public HomeModel(int fractionId, string lastMessage)
         {
             Messages = new List<string>();
             foreach (var item in MainLogic.Chat.Chats[fractionId])
             {
                 var user = MainLogic.Chat.Users.First(u => u.Id == item.UserID);
-                Messages.Add(item.MessageDatetime+" "+ user.Nickname.Trim() + ": " + item.MessageText);
+                Messages.Add(item.MessageDatetime + " " + user.Nickname.Trim() + ": " + item.MessageText);
             }
+
+            if (lastMessage != null && Messages.Last() == lastMessage)
+                Messages = null;
         }
     }
 }

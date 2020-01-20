@@ -128,16 +128,11 @@
 
 </script>
 <div class="canvas-container">
-    @*<div>
-            <label id="arrLength">Length</label>
-        </div>*@
-
     <div>
         <canvas id="hexagonCanvas" width="700" height="550">
             Извините, ваш браузер не поддерживает тег canvas
         </canvas>
     </div>
-
 
 </div>
 <form method="post" asp-controller="Home" asp-action="BoardActionResult">
@@ -158,38 +153,54 @@
         <input type="button" value="Send" class="buttons" onclick="sendMessage()" />
     </form>
 </div>
-@*<script>
-        $(function () {
-            updateChat();
-            setInterval(updateChat, 5000);
+<script>
+    $(function () {
+        updateChat();
+        setInterval(updateChat, 5000); // запускать обновление чата каждые 5000 мс
+    });
+
+    var messages;
+    // Ajax-запрос на обновление сообщений в чате
+    function updateChat() {
+        var msg;
+        if (messages == null) {
+            msg = null;
+        } else {
+            msg = messages[messages.length - 1];
+        }
+
+        $.ajax({
+            url: 'UpdateChat',
+            type: 'Get',
+            data: { lastMessage: msg },
+            success: function (result) {
+                if (result === null || result === "null") {
+                    return;
+                }
+                messages = result;
+                var chat = "";
+                for (var i = 0; i < result.length; i++) {
+                    chat += result[i] + "\r\n";
+                }
+                document.getElementById("gameChat").value = chat;
+
+            }
+        });
+    }
+
+    // Ajax-запрос на отправку сообщения
+    function sendMessage() {
+        var messageText = document.getElementById("message").value;
+        document.getElementById("message").value = "";
+        $.ajax({
+            url: 'SendMessage',
+            type: 'Post',
+            data: { message: messageText },
+            success: function () { updateChat(); }
         });
 
-        function updateChat() {
-            $.ajax({
-                url: 'UpdateChat',
-                type: 'Get',
-                success: function (result) {
-                    var chat = "";
-                    for (var i = 0; i < result.length; i++) {
-                        chat += result[i] + "\r\n";
-                    }
-                    document.getElementById("gameChat").value = chat;
-                }
-            });
-        }
+    }
 
-        function sendMessage() {
-            var messageText = document.getElementById("message").value;
-            document.getElementById("message").value = "";
-            $.ajax({
-                url: 'SendMessage',
-                type: 'Post',
-                data: { message: messageText },
-                success: function () { updateChat(); }
-            });
-
-        }
-
-    </script>*@
+</script>
 
 <noscript><div>Извините, требуется включённый Javascript для работы приложения!</div></noscript>

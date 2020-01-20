@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
@@ -33,17 +34,6 @@ namespace Hexace.Controllers
             var editCell = db.FieldCells.First(x => x.X == model.X && x.Y == model.Y);
             editCell.IsStroked = true;
             editCell.FractionAttackId = 2;
-            //db.FieldCells.Update(new FieldCell
-            //{
-            //    Id = model.Id,
-            //    X = model.X,
-            //    Y = model.Y,
-            //    //Получение id фракции игрока
-            //    FractionAttackId = 2,
-            //    FractionDefId = db.FieldCells.First(x => x.Id == model.Id).FractionDefId,
-            //    IsFilled = db.FieldCells.First(x => x.Id == model.Id).IsFilled,
-            //    IsStroked = true
-            //});
             db.SaveChanges();
 
             model.Cells = HomeModel.GetObjectCells(model.CellString); //нужно понять как нормально десериализировать
@@ -93,6 +83,8 @@ namespace Hexace.Controllers
                         });
                     db.SaveChanges();
                 }
+
+                
             }
 
             model.Cells = new List<ObjectCell>();
@@ -108,7 +100,7 @@ namespace Hexace.Controllers
         }
 
 
-        public int GetCurrentUserFraction(UserContext context)
+        public int GetCurrentUserFraction()
         {
             var user = dbUser.Users.First(u => u.Email == HttpContext.User.Identity.Name);
             var profile = dbUser.Profiles.First(p => p.UserId == user.Id);
@@ -117,11 +109,17 @@ namespace Hexace.Controllers
 
         [HttpGet]
         [Route("UpdateChat")]
-        public JsonResult UpdateChat()
+        public JsonResult UpdateChat(string lastMessage)
         {
-            var fractionId = GetCurrentUserFraction(dbUser);
-            var tmp = new JsonResult(new HomeModel(fractionId).Messages);
-            return tmp;
+            var fractionId = GetCurrentUserFraction();
+            var messages = new HomeModel(fractionId, lastMessage).Messages;
+            if (messages == null)
+            {
+                return new JsonResult("null");
+            }
+    
+            return new JsonResult(messages);
+
         }
 
         [HttpPost]
