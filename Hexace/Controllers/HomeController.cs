@@ -39,7 +39,7 @@ namespace Hexace.Controllers
 
             model.Cells[model.Id].isStroked = true;
             model.Cells[model.Id].colorAttack = db.Fractions.First(x => x.Id == GetCurrentUserFraction()).Color; //проверка fraction id пользователя
-            GameModel.LastClick = 1000 * 4 * 60 + Math.Floor(DateTime.UtcNow
+            GameModel.LastClick = 1000 * 2 * 60 + Math.Floor(DateTime.UtcNow
                                   .Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc))
                                   .TotalMilliseconds);
             return View("Index", model);
@@ -109,6 +109,28 @@ namespace Hexace.Controllers
         }
 
         [HttpGet]
+        [Route("UpdateField")]
+        public JsonResult UpdateField(string result)
+        {
+            HomeModel model = new HomeModel();
+            model.Cells = new List<ObjectCell>();
+            foreach (var cell in db.FieldCells.ToList())
+            {
+                var colorDef = cell.IsFilled ? db.Fractions.First(x => x.Id == cell.FractionDefId).Color : null;
+                var colorAttack = cell.IsStroked ? db.Fractions.First(x => x.Id == cell.FractionAttackId).Color : null;
+                model.Cells.Add(new ObjectCell(cell.X, cell.Y, cell.IsFilled, cell.IsStroked, colorAttack, colorDef));
+            }
+            model.CellString = HomeModel.GetJsonString(model.Cells);
+            var fractionId = GetCurrentUserFraction();
+            if (model.CellString == null)
+            {
+                return new JsonResult("null");
+            }
+
+            return new JsonResult(model.CellString);
+
+        }
+        [HttpGet]
         [Route("UpdateChat")]
         public JsonResult UpdateChat(string lastMessage)
         {
@@ -118,7 +140,7 @@ namespace Hexace.Controllers
             {
                 return new JsonResult("null");
             }
-    
+
             return new JsonResult(messages);
 
         }

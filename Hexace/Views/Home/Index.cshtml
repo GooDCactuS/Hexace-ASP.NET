@@ -5,8 +5,24 @@
 
 <script src="/lib/jquery/dist/jquery.js"></script>
 <script>
+    
     $(function () {
         var board = JSON.parse('@Html.Raw(Model.CellString)');
+        setInterval(function() {
+                $.ajax({
+                    url: 'UpdateField',
+                    type: 'Get',
+                    data: {},
+                    success: function(result) {
+                        if (result === null || result === "null") {
+                            return;
+                        }
+                        board = JSON.parse(result);
+                    }
+                });
+            },
+            5000);
+        
         var canvas = document.getElementById('hexagonCanvas');
         if (canvas == null) return;
         var hexHeight,
