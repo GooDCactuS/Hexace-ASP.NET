@@ -7,11 +7,18 @@ using Hexace.Data.Objects;
 using Hexace.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 
 namespace Hexace.Controllers
 {
     public class LeaderboardController : Controller
     {
+        public class UserInfo
+        {
+            public Profile Profile { get; set; }
+            public string Nickname { get; set; }
+        }
+
         private HexaceContext db;
 
         public LeaderboardController(HexaceContext context)
@@ -22,18 +29,19 @@ namespace Hexace.Controllers
         [HttpGet]
         public IActionResult Index()
         {
-            return View(new LeaderboardModel());
+            return View();
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Index(LeaderboardModel model)
+        [HttpGet]
+        [Route("ChooseLeaderboard")]
+        public JsonResult ChooseLeaderboard(string leaderboardFraction)
         {
             IQueryable<Profile> users = null;
-            
-            switch (model.ButtonValue)
+
+            switch (leaderboardFraction)
             {
                 case "ta": // Turquoise Attack
-                    users = db.Profiles.Where(x=>x.FractionId==1).OrderBy(x=>x.SuccessfulAttacks).Take(5);
+                    users = db.Profiles.Where(x => x.FractionId == 1).OrderBy(x => x.SuccessfulAttacks).Take(5);
                     break;
 
                 case "td": // Turquoise Defence
@@ -56,14 +64,16 @@ namespace Hexace.Controllers
                     users = db.Profiles.Where(x => x.FractionId == 3).OrderBy(x => x.SuccessfulDefences).Take(5);
                     break;
             }
+
+            var userInfo = new List<UserInfo>();
             foreach (var item in users)
             {
-                var userInfo = new LeaderboardModel.UserInfo();
-                userInfo.ProfileInfo = item;
-                userInfo.Nickname = db.Users.Where(x => x.Id == item.UserId).First().Nickname;
-                model.Users.Add(userInfo);
+                var tmp = new UserInfo();
+                tmp.Profile = item;
+                tmp.Nickname = db.Users.Where(x => x.Id == item.UserId).First().Nickname;
+                userInfo.Add(tmp);
             }
-            return View("Index", model);
+            return new JsonResult(userInfo);
         }
     }
 }

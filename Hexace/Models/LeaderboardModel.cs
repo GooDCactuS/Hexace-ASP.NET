@@ -13,21 +13,8 @@ namespace Hexace.Models
 {
     public class LeaderboardModel 
     {
-        public class UserInfo
-        {
-            public Profile ProfileInfo { get; set; }
-            public string Nickname { get; set; }
-        }
-        public List<UserInfo> Users { get; set; }
+        public LeaderboardModel() {}
 
-        public string ButtonValue { get; set; }
-
-        public LeaderboardModel() { Users = new List<UserInfo>();}
-
-        public LeaderboardModel(List<UserInfo> users)
-        {
-            Users = users;
-        }
 
     }
 }
