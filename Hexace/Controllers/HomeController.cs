@@ -29,6 +29,7 @@ namespace Hexace.Controllers
         [Authorize]
         public IActionResult BoardActionResult(HomeModel model)
         {
+
             var editCell = db.FieldCells.First(x => x.X == model.X && x.Y == model.Y);
             editCell.IsStroked = true;
             editCell.FractionAttackId = 2;
@@ -38,6 +39,9 @@ namespace Hexace.Controllers
 
             model.Cells[model.Id].isStroked = true;
             model.Cells[model.Id].colorAttack = db.Fractions.First(x => x.Id == GetCurrentUserFraction()).Color; //проверка fraction id пользователя
+            GameModel.LastClick = 1000 * 4 * 60 + Math.Floor(DateTime.UtcNow
+                                  .Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc))
+                                  .TotalMilliseconds);
             return View("Index", model);
         }
 
@@ -92,7 +96,6 @@ namespace Hexace.Controllers
                 var colorAttack = cell.IsStroked ? db.Fractions.First(x => x.Id == cell.FractionAttackId).Color : null;
                 model.Cells.Add(new ObjectCell(cell.X, cell.Y, cell.IsFilled, cell.IsStroked, colorAttack, colorDef));
             }
-
             model.CellString = HomeModel.GetJsonString(model.Cells);
             return View(model);
         }
