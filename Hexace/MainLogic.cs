@@ -23,15 +23,15 @@ namespace Hexace
             Chat = new Chat(services.GetService<HexaceContext>());
         }
 
-        public void UpdateChat()
+        public static void UpdateChat()
         {
             Chat.UpdateMessages();
         }
 
-        public void UpdateInfo()
+        public static void UpdateInfo()
         {
             FractionStats.UpdateStats();
-            Chat.UpdateMessages();
+            //Chat.UpdateMessages();
         }
     }
 }

@@ -31,8 +31,10 @@ namespace Hexace
             {
                 while (true)
                 {
+                    //Thread.Sleep(1000*30);
+                    //MainLogic.UpdateChat();
                     Thread.Sleep(1000 * 60 * 60);
-                    mainLogic.UpdateInfo();
+                    MainLogic.UpdateInfo();
                 }
             });
 

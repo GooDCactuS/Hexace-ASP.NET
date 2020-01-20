@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using IApplicationLifetime = Microsoft.Extensions.Hosting.IApplicationLifetime;
 
 namespace Hexace
 {
@@ -25,6 +26,13 @@ namespace Hexace
         }
 
         public IConfiguration Configuration { get; }
+
+        private void OnShutdown()
+        {
+            MainLogic.UpdateChat();
+            MainLogic.UpdateInfo();
+            
+        }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -44,8 +52,9 @@ namespace Hexace
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IApplicationLifetime applicationLifetime)
         {
+            applicationLifetime.ApplicationStopping.Register(OnShutdown);
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

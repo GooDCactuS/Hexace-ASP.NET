@@ -38,7 +38,7 @@ namespace Hexace
         {
             var scope = Program.host.Services.CreateScope();
             db = scope.ServiceProvider.GetService<HexaceContext>();
-            //db.Database.OpenConnection();
+            db.Database.OpenConnection();
             for (int i = 1; i < 4; i++)
             {
                 foreach (var message in Chats[i])
