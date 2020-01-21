@@ -77,8 +77,7 @@
                     var btn = document.getElementById("btn_submit");
                     btn.click();
                 }
-
-                draw(board);
+                draw(JSON.parse('@Html.Raw(Model.CellString)'));
             });
         }
         function draw(board) {
@@ -151,7 +150,7 @@
         var countDownDate = @Model.LastClick;
         var x = setInterval(function() {
             var now = Date.now();
-            var distance = Math.floor(countDownDate+40000 - now);
+            var distance = Math.floor(countDownDate - now);
             var minutes = Math.floor(distance / 1000 / 60);
             var seconds = Math.floor((distance % (1000 * 60)) / 1000);
             document.getElementById("my_timer").innerHTML = minutes+"m : "+seconds+"s";

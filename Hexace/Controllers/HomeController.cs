@@ -91,10 +91,8 @@ namespace Hexace.Controllers
 
             //}
             HomeModel model = new HomeModel();
-            MainLogic.GameModel.LastClick =
-                MainLogic.Timer.lastClicks[db.Users.First(u => u.Email == HttpContext.User.Identity.Name).Id];
             model.CellString = GetJsonString(MainLogic.GameModel.Cells);
-            model.LastClick = MainLogic.GameModel.LastClick;
+            model.LastClick = MainLogic.Timer.lastClicks[db.Users.First(u => u.Email == HttpContext.User.Identity.Name).Id];
             return View(model);
         }
 
