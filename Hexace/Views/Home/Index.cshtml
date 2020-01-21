@@ -7,13 +7,14 @@
 <script>
     var g_board;
     var isReload;
+    var countDownDate;
 
     $(function () {
         var board = JSON.parse('@Html.Raw(Model.CellString)');
         render(board);
         g_board = board;
 
-        var countDownDate = @Model.LastClick;
+        countDownDate = @Model.LastClick;
         updateTimer(countDownDate);
 
         setInterval(function () {
@@ -92,14 +93,14 @@
                 //На доске ли координаты мыши
                 var obj = { x: hexX, y: hexY, color: ctx };
 
-                if (board.some(item => (item.x === obj.x) && (item.y === obj.y))&& @Model.LastClick - Date.now()<0) {
+                if (board.some(item => (item.x === obj.x) && (item.y === obj.y)) && countDownDate < Date.now()) {
                     document.getElementById("cellY").value = hexY;
                     document.getElementById("cellX").value = hexX;
                     document.getElementById("cells_str").value = '@Html.Raw(Model.CellString)';
                     var btn = document.getElementById("btn_submit");
                     btn.click();
                 }
-                draw(tmp);
+                draw(g_board);
             });
 
             function draw(board) {
@@ -164,7 +165,6 @@
 
     // Ajax-запрос на клик по полю
     function sendUserAction() {
-
         $.ajax({
             url: 'SendUserAction',
             type: 'Post',
@@ -176,7 +176,7 @@
                 }
 
                 if (result != null) {
-                    var countDownDate = result;
+                    countDownDate = result;
                     updateTimer(countDownDate);
                 }
 
@@ -198,11 +198,11 @@
     </div>
 
 </div>
-<form method="post">
+<form>
     <input asp-for="Y" type="hidden" id="cellY" value="3" />
     <input asp-for="X" type="hidden" id="cellX" value="23" />
     <input asp-for="CellString" type="hidden" id="cells_str" />
-    <input type="button" id="btn_submit" value="Take Hex" class="btn-signin" onclick="sendUserAction()" />
+    <input type="hidden" id="btn_submit" value="Take Hex" class="btn-signin" onclick="sendUserAction()" />
 </form>
 
 <div>
