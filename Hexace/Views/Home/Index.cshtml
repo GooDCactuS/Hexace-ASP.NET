@@ -5,24 +5,45 @@
 
 <script src="/lib/jquery/dist/jquery.js"></script>
 <script>
+    var g_board;
 
     $(function () {
         var board = JSON.parse('@Html.Raw(Model.CellString)');
-        setInterval(function() {
-                $.ajax({
-                    url: 'UpdateField',
-                    type: 'Get',
-                    data: {},
-                    success: function(result) {
-                        if (result === null || result === "null") {
-                            return;
-                        }
-                        board = JSON.parse(result);
-                    }
-                });
-            },
-            5000);
+        render(board);
+        g_board = board;
 
+        var countDownDate = @Model.LastClick;
+        updateTimer(countDownDate);
+
+        setInterval(function () {
+            getNewBoard();
+            if (g_board != null) {
+                render(g_board);
+            }
+        }, 3000);
+
+    });
+
+    // Отрисовка таймера
+    function updateTimer(lastClick) {
+        var x = setInterval(function() {
+                var now = Date.now();
+                var distance = Math.floor(lastClick - now);
+                var minutes = Math.floor(distance / 1000 / 60);
+                var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                document.getElementById("my_timer").innerHTML = minutes + "m : " + seconds + "s";
+                if (distance < 0) {
+                    clearInterval(x);
+
+                    document.getElementById("my_timer").innerHTML = "Can attack/defense";
+                }
+            },
+            1000);
+
+    }
+
+    // Отрисовка поля
+    function render(board) {
         var canvas = document.getElementById('hexagonCanvas');
         if (canvas == null) return;
         var hexHeight,
@@ -77,52 +98,95 @@
                     var btn = document.getElementById("btn_submit");
                     btn.click();
                 }
-                draw(JSON.parse('@Html.Raw(Model.CellString)'));
+                var tmp = JSON.parse('@Html.Raw(Model.CellString)');
+                draw(tmp);
             });
-        }
-        function draw(board) {
-            for (var k = 0; k < board.length; k++) {
-                if (board[k].isFilled)
-                    ctx.fillStyle = board[k].colorDef;
-                drawHexagon(ctx, board[k].x, board[k].y,board[k].colorAttack, board[k].isFilled, board[k].isStroked);
+
+            function draw(board) {
+                for (var k = 0; k < board.length; k++) {
+                    if (board[k].isFilled)
+                        ctx.fillStyle = board[k].colorDef;
+                    drawHexagon(ctx, board[k].x, board[k].y,board[k].colorAttack, board[k].isFilled, board[k].isStroked);
+                }
+            }
+
+            function drawHexagon(canvasContext, x, y, colorAttack, fill = false, stroke = false)
+            {
+                x = x * hexRectangleWidth + ((y % 2) * hexRadius);//приведение координат
+                y = y * (hexHeight + sideLength);
+                canvasContext.strokeStyle = "#ff132c";
+                canvasContext.beginPath();
+                canvasContext.moveTo(x + hexRadius, y);
+                canvasContext.lineTo(x + hexRectangleWidth, y + hexHeight);
+                canvasContext.lineTo(x + hexRectangleWidth, y + hexHeight + sideLength);
+                canvasContext.lineTo(x + hexRadius, y + hexRectangleHeight);
+                canvasContext.lineTo(x, y + sideLength + hexHeight);
+                canvasContext.lineTo(x, y + hexHeight);
+                canvasContext.closePath();
+                if (fill) canvasContext.fill();
+                canvasContext.stroke();
+                if (stroke) {
+                    canvasContext.strokeStyle=colorAttack;
+                    canvasContext.beginPath();
+                    canvasContext.moveTo(x + hexRectangleWidth, y + hexHeight);
+                    canvasContext.lineTo(x, y + sideLength + hexHeight);
+                    canvasContext.closePath();
+                    canvasContext.stroke();
+                    canvasContext.beginPath();
+                    canvasContext.lineTo(x, y + hexHeight);
+                    canvasContext.lineTo(x + hexRectangleWidth, y + sideLength + hexHeight);
+                    canvasContext.closePath();
+                    canvasContext.stroke();
+                }
             }
         }
 
-        function drawHexagon(canvasContext, x, y, colorAttack, fill = false, stroke = false)
-        {
-            x = x * hexRectangleWidth + ((y % 2) * hexRadius);//приведение координат
-            y = y * (hexHeight + sideLength);
-            canvasContext.strokeStyle = "#ff132c";
-            canvasContext.beginPath();
-            canvasContext.moveTo(x + hexRadius, y);
-            canvasContext.lineTo(x + hexRectangleWidth, y + hexHeight);
-            canvasContext.lineTo(x + hexRectangleWidth, y + hexHeight + sideLength);
-            canvasContext.lineTo(x + hexRadius, y + hexRectangleHeight);
-            canvasContext.lineTo(x, y + sideLength + hexHeight);
-            canvasContext.lineTo(x, y + hexHeight);
-            canvasContext.closePath();
-            if (fill) canvasContext.fill();
-            canvasContext.stroke();
-            if (stroke) {
-                canvasContext.strokeStyle=colorAttack;
-                canvasContext.beginPath();
-                canvasContext.moveTo(x + hexRectangleWidth, y + hexHeight);
-                canvasContext.lineTo(x, y + sideLength + hexHeight);
-                canvasContext.closePath();
-                canvasContext.stroke();
-                canvasContext.beginPath();
-                canvasContext.lineTo(x, y + hexHeight);
-                canvasContext.lineTo(x + hexRectangleWidth, y + sideLength + hexHeight);
-                canvasContext.closePath();
-                canvasContext.stroke();
+    }
+
+    // Ajax-запрос на получение нового состояния поля
+    function getNewBoard() {
+        var board = null;
+        $.ajax({
+            url: 'UpdateField',
+            type: 'Get',
+            success: function(result) {
+                if (result === null || result === "null") {
+                    board = null;
+                } else {
+                    board = JSON.parse(result);
+                    g_board = board;
+                }
+
             }
-        }
-    });
+        });
+        return board;
+    }
+
+    // Ajax-запрос на клик по полю
+    function sendUserAction() {
+
+        $.ajax({
+            url: 'SendUserAction',
+            type: 'Post',
+            data: { userAction : JSON.stringify(document.getElementById("cells_str")).value },
+            success: function(result) {
+                getNewBoard();
+                if (g_board != null) {
+                    render(g_board);
+                }
+
+                var countDownDate = result;
+                updateTimer(countDownDate);
+            }
+        });
+    }
 
 </script>
+
 <p>
     <span id="my_timer" style="color: floralwhite; font-size: 100%; font-weight: bold;"></span>
 </p>
+
 <div class="canvas-container">
     <div>
         <canvas id="hexagonCanvas" width="700" height="550">
@@ -135,7 +199,7 @@
     <input asp-for="Y" type="hidden" id="cellY" value="3" />
     <input asp-for="X" type="hidden" id="cellX" value="23" />
     <input asp-for="CellString" type="hidden" id="cells_str" />
-    <input type="submit" id="btn_submit" value="Take Hex" class="btn-signin" />
+    <input type="button" id="btn_submit" value="Take Hex" class="btn-signin" onclick="sendUserAction()" />
 </form>
 
 <div>
@@ -148,15 +212,9 @@
     </form>
 </div>
 <script>
-    $(function() {
-        var countDownDate = @Model.LastClick;
-        updateTimer(countDownDate);
-    });
-
-
-    $(function() {
+    $(function () {
         updateChat();
-        setInterval(updateChat, 5000); // запускать обновление чата каждые 5000 мс
+        setInterval(updateChat, 100000000000); // запускать обновление чата каждые 5000 мс
     });
 
     var messages;
@@ -174,7 +232,7 @@
             url: 'UpdateChat',
             type: 'Get',
             data: { lastMessage: msg },
-            success: function(result) {
+            success: function (result) {
                 if (result === null || result === "null") {
                     return;
                 }
@@ -197,29 +255,10 @@
             url: 'SendMessage',
             type: 'Post',
             data: { message: messageText },
-            success: function() { updateChat(); }
+            success: function () { updateChat(); }
         });
 
     }
-
-    // Отрисовка таймера
-    function updateTimer(lastClick) {
-        var x = setInterval(function() {
-                var now = Date.now();
-                var distance = Math.floor(lastClick - now);
-                var minutes = Math.floor(distance / 1000 / 60);
-                var seconds = Math.floor((distance % (1000 * 60)) / 1000);
-                document.getElementById("my_timer").innerHTML = minutes + "m : " + seconds + "s";
-                if (distance < 0) {
-                    clearInterval(x);
-
-                    document.getElementById("my_timer").innerHTML = "Can attack/defense";
-                }
-            },
-            1000);
-
-    }
-
 </script>
 
 <noscript><div>Извините, требуется включённый Javascript для работы приложения!</div></noscript>

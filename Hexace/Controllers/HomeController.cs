@@ -117,17 +117,39 @@ namespace Hexace.Controllers
 
         [HttpGet]
         [Route("UpdateField")]
-        public JsonResult UpdateField(string result)
+        public string UpdateField()
         {
             HomeModel model = new HomeModel();
             model.CellString = GetJsonString(MainLogic.GameModel.Cells);
-            if (MainLogic.GameModel.CellString == null)
+
+            if (model.CellString == null)
             {
-                return new JsonResult("null");
+                return "null";
             }
 
-            return new JsonResult(model.CellString);
+            return model.CellString;
+        }
 
+        [HttpPost]
+        [Route("SendUserAction")]
+        public string SendUserAction(string userAction, string strX, string strY)
+        {
+
+            var ediCell = MainLogic.GameModel.Cells.First(x => x.x == model.X && x.y == model.Y);
+            ediCell.isStroked = true;
+            ediCell.colorAttack = db.Fractions.First(x => x.Id == GetCurrentUserFraction()).Color;
+            ediCell.LastAttackTime = Timer.GetTimeNow();
+
+            var editCell = db.FieldCells.First(x => x.X == model.X && x.Y == model.Y);
+            editCell.IsStroked = true;
+            editCell.FractionAttackId = GetCurrentUserFraction();
+            db.SaveChanges();
+
+            MainLogic.Timer.UpdateClickUser(db.Users.First(u => u.Email == HttpContext.User.Identity.Name).Id);
+            model.LastClick =
+                MainLogic.Timer.UsersLastClicks[db.Users.First(u => u.Email == HttpContext.User.Identity.Name).Id];
+            model.CellString = GetJsonString(MainLogic.GameModel.Cells);
+            return View("Index", model);
         }
 
         [HttpGet]
