@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Hexace.Data;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 
 namespace Hexace.Models
@@ -60,21 +62,47 @@ namespace Hexace.Models
             Cells = new List<ObjectCell>();
             foreach (var cell in db.FieldCells.ToList())
             {
-                var colorDef = cell.IsFilled ? db.Fractions.First(x => x.Id == cell.FractionDefId).Color : null;
+                string colorDef;
+                if (cell.FractionDefId == 4)
+                {
+                    colorDef = null;
+                }
+                else
+                {
+                    colorDef = cell.IsFilled ? db.Fractions.First(x => x.Id == cell.FractionDefId).Color : null;
+                }
                 cell.IsStroked = false;
-                var colorAttack = cell.IsStroked ? db.Fractions.First(x => x.Id == cell.FractionAttackId).Color : null;
+                cell.FractionAttackId = null;
                 Cells.Add(new ObjectCell(cell.X, cell.Y, cell.IsFilled, cell.IsStroked, null, colorDef));
             }
         }
 
         public void SaveChanges()
         {
+            Dictionary<int, string> colors = new Dictionary<int, string>();
+            
+            var scope = Program.host.Services.CreateScope();
+            db = scope.ServiceProvider.GetService<HexaceContext>();
+            db.Database.OpenConnection();
+
+            foreach (var item in db.Fractions)
+            {
+                colors.Add(item.Id, item.Color);
+            }
             foreach (var cell in Cells)
             {
-                var updateCell = db.FieldCells.First(x => x.Y == cell.x && x.Y == cell.y);
-                updateCell.FractionDefId = updateCell.FractionAttackId;
+                var updateCell = db.FieldCells.First(c => c.X==cell.x && c.Y == cell.y);
+                if (cell.colorDef == null)
+                {
+                    updateCell.FractionDefId = null;
+                }
+                else
+                {
+                    updateCell.FractionDefId = colors.First(c => c.Value == cell.colorDef).Key;
+                }
+                
                 updateCell.FractionAttackId = null;
-                updateCell.IsFilled = true;
+                updateCell.IsFilled = cell.isFilled;
                 updateCell.IsStroked = false;
             }
             db.SaveChanges();
