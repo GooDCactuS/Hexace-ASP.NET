@@ -49,12 +49,12 @@ namespace Hexace
         }
 
 
-        public void UpdateTimerForUser(int userId)
+        public static void UpdateTimerForUser(int userId)
         {
             Timer.UpdateClickUser(userId);
         }
         
-        public void UpdateInfo()
+        public static void UpdateInfo()
         {
             FractionStats.UpdateStats();
             //Chat.UpdateMessages();

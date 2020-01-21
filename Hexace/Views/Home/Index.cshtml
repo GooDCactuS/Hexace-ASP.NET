@@ -5,7 +5,7 @@
 
 <script src="/lib/jquery/dist/jquery.js"></script>
 <script>
-    
+
     $(function () {
         var board = JSON.parse('@Html.Raw(Model.CellString)');
         setInterval(function() {
@@ -22,7 +22,7 @@
                 });
             },
             5000);
-        
+
         var canvas = document.getElementById('hexagonCanvas');
         if (canvas == null) return;
         var hexHeight,
@@ -121,7 +121,9 @@
     });
 
 </script>
-<p><span id="my_timer" style="color: floralwhite; font-size: 100%; font-weight: bold;"></span></p>
+<p>
+    <span id="my_timer" style="color: floralwhite; font-size: 100%; font-weight: bold;"></span>
+</p>
 <div class="canvas-container">
     <div>
         <canvas id="hexagonCanvas" width="700" height="550">
@@ -149,25 +151,17 @@
 <script>
     $(function() {
         var countDownDate = @Model.LastClick;
-        var x = setInterval(function() {
-            var now = Date.now();
-            var distance = Math.floor(countDownDate+40000 - now);
-            var minutes = Math.floor(distance / 1000 / 60);
-            var seconds = Math.floor((distance % (1000 * 60)) / 1000);
-            document.getElementById("my_timer").innerHTML = minutes+"m : "+seconds+"s";
-            if (distance < 0) {
-                clearInterval(x);
-
-                document.getElementById("my_timer").innerHTML = "Can atack/defense";
-            }
-        },1000);
+        updateTimer(countDownDate);
     });
-    $(function () {
+
+
+    $(function() {
         updateChat();
         setInterval(updateChat, 5000); // запускать обновление чата каждые 5000 мс
     });
 
     var messages;
+
     // Ajax-запрос на обновление сообщений в чате
     function updateChat() {
         var msg;
@@ -181,7 +175,7 @@
             url: 'UpdateChat',
             type: 'Get',
             data: { lastMessage: msg },
-            success: function (result) {
+            success: function(result) {
                 if (result === null || result === "null") {
                     return;
                 }
@@ -204,8 +198,26 @@
             url: 'SendMessage',
             type: 'Post',
             data: { message: messageText },
-            success: function () { updateChat(); }
+            success: function() { updateChat(); }
         });
+
+    }
+
+    // Отрисовка таймера
+    function updateTimer(lastClick) {
+        var x = setInterval(function() {
+                var now = Date.now();
+                var distance = Math.floor(lastClick + 40000 - now);
+                var minutes = Math.floor(distance / 1000 / 60);
+                var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                document.getElementById("my_timer").innerHTML = minutes + "m : " + seconds + "s";
+                if (distance < 0) {
+                    clearInterval(x);
+
+                    document.getElementById("my_timer").innerHTML = "Can attack/defense";
+                }
+            },
+            1000);
 
     }
 

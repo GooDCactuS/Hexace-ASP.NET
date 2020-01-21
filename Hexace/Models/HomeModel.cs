@@ -21,8 +21,8 @@ namespace Hexace.Models
 
         public string CellString { get; set; }
         public double LastClick { get; set; }
-        public int X;
-        public int Y;
+        public int X { get; set; }
+        public int Y { get; set; }
 
 
         public HomeModel()

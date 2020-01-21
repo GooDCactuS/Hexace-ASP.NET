@@ -31,9 +31,9 @@ namespace Hexace.Controllers
         public IActionResult BoardActionResult(HomeModel model)
         {
             var ediCell = MainLogic.GameModel.Cells.First(x => x.x == model.X && x.y == model.Y);
-            ediCell.isStroked= true;
-            ediCell.colorAttack= db.Fractions.First(x=>x.Id== GetCurrentUserFraction()).Color;
-            ediCell.LastAttackTime= MainLogic.Timer.GetTimeNow();
+            ediCell.isStroked = true;
+            ediCell.colorAttack = db.Fractions.First(x => x.Id == GetCurrentUserFraction()).Color;
+            ediCell.LastAttackTime = Timer.GetTimeNow();
 
             var editCell = db.FieldCells.First(x => x.X == model.X && x.Y == model.Y);
             editCell.IsStroked = true;
@@ -42,7 +42,7 @@ namespace Hexace.Controllers
 
             MainLogic.Timer.UpdateClickUser(db.Users.First(u => u.Email == HttpContext.User.Identity.Name).Id);
             model.LastClick =
-                MainLogic.Timer.lastClicks[db.Users.First(u => u.Email == HttpContext.User.Identity.Name).Id];
+                MainLogic.Timer.UsersLastClicks[db.Users.First(u => u.Email == HttpContext.User.Identity.Name).Id];
             model.CellString = GetJsonString(MainLogic.GameModel.Cells);
             return View("Index", model);
         }
@@ -91,10 +91,10 @@ namespace Hexace.Controllers
 
             //}
             HomeModel model = new HomeModel();
-            MainLogic.GameModel.LastClick =
-                MainLogic.Timer.lastClicks[db.Users.First(u => u.Email == HttpContext.User.Identity.Name).Id];
+            var userId = db.Users.First(u => u.Email == HttpContext.User.Identity.Name).Id;
+            //MainLogic.UpdateTimerForUser(userId);
+            model.LastClick = MainLogic.Timer.UsersLastClicks[userId];
             model.CellString = GetJsonString(MainLogic.GameModel.Cells);
-            model.LastClick = MainLogic.GameModel.LastClick;
             return View(model);
         }
 
@@ -129,6 +129,7 @@ namespace Hexace.Controllers
             return new JsonResult(model.CellString);
 
         }
+
         [HttpGet]
         [Route("UpdateChat")]
         public JsonResult UpdateChat(string lastMessage)
