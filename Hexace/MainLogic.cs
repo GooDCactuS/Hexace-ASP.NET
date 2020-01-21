@@ -28,6 +28,8 @@ namespace Hexace
             GameModel = new GameModel(services.GetService<HexaceContext>());
         }
 
+        
+
         public static void UpdateCells()
         {
             foreach (var cell in GameModel.Cells.Where(x => x.isStroked))
@@ -39,6 +41,9 @@ namespace Hexace
                     cell.colorDef = cell.colorAttack;
                     cell.LastAttackTime = 0;
                     cell.colorAttack = "";
+
+                    GameModel.IncreasePlayersStats(cell.PlayerId, GameModel.Stats.SuccessfulAttacks);
+                    cell.PlayerId = 0;
                 }
             }
         }
