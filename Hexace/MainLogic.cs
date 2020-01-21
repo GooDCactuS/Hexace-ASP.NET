@@ -30,13 +30,14 @@ namespace Hexace
 
         public void UpdateCells()
         {
-            foreach (var cell in GameModel.Cells)
+            foreach (var cell in GameModel.Cells.Where(x=>x.isStroked))
             {
-                if(cell.isStroked&& cell.LastAttackTime - Timer.GetTimeNow() > 1000 * 60)
+                if(cell.LastAttackTime - Timer.GetTimeNow() > 1000 * 60)
                 {
                     cell.isFilled = true;
                     cell.isStroked = false;
                     cell.colorDef = cell.colorAttack;
+                    cell.LastAttackTime = 0;
                     cell.colorAttack = "";
                     GameModel.SaveChanges(cell);
                 }
