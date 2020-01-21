@@ -29,27 +29,6 @@ namespace Hexace.Controllers
             db = context;
         }
 
-        //[HttpPost]
-        //[Authorize]
-        //public IActionResult BoardActionResult(HomeModel model)
-        //{
-        //    var ediCell = MainLogic.GameModel.Cells.First(x => x.x == model.X && x.y == model.Y);
-        //    ediCell.isStroked = true;
-        //    ediCell.colorAttack = db.Fractions.First(x => x.Id == GetCurrentUserFraction()).Color;
-        //    ediCell.LastAttackTime = (long)Timer.GetTimeNow();
-
-        //    var editCell = db.FieldCells.First(x => x.X == model.X && x.Y == model.Y);
-        //    editCell.IsStroked = true;
-        //    editCell.FractionAttackId = GetCurrentUserFraction();
-        //    db.SaveChanges();
-
-        //    MainLogic.Timer.UpdateClickUser(db.Users.First(u => u.Email == HttpContext.User.Identity.Name).Id);
-        //    model.LastClick =
-        //        MainLogic.Timer.UsersLastClicks[db.Users.First(u => u.Email == HttpContext.User.Identity.Name).Id];
-        //    model.CellString = GetJsonString(MainLogic.GameModel.Cells);
-        //    return View("Index", model);
-        //}
-
         [HttpGet]
         [Authorize]
         public IActionResult Index()
@@ -95,6 +74,10 @@ namespace Hexace.Controllers
             //}
             HomeModel model = new HomeModel();
             var userId = db.Users.First(u => u.Email == HttpContext.User.Identity.Name).Id;
+            if (!MainLogic.Timer.UsersLastClicks.ContainsKey(userId))
+            {
+                MainLogic.Timer.UpdateClickUser(userId);
+            }
             model.LastClick = MainLogic.Timer.UsersLastClicks[userId];
             model.CellString = GetJsonString(MainLogic.GameModel.Cells);
             return View(model);
@@ -115,6 +98,11 @@ namespace Hexace.Controllers
             var user = db.Users.First(u => u.Email == HttpContext.User.Identity.Name);
             var profile = db.Profiles.First(p => p.UserId == user.Id);
             return profile.FractionId;
+        }
+
+        public string GetCurrentUserFractionColor()
+        {
+            return db.Fractions.First(x => x.Id == GetCurrentUserFraction()).Color;
         }
 
         [HttpPost]
@@ -163,25 +151,34 @@ namespace Hexace.Controllers
             {
                 var ediCell = MainLogic.GameModel.Cells.First(x => x.x == coordX && x.y == coordY);
 
-                // TODO: написать проверку чтобы нельзя было нападать на свои базы
-
-
-
-                if (ediCell.colorAttack != (db.Fractions.First(x => x.Id == GetCurrentUserFraction()).Color))
+                if (ediCell.colorDef == GetCurrentUserFractionColor() && ediCell.colorAttack == null)
                 {
-                    ediCell.isStroked = true;
-                    ediCell.colorAttack = db.Fractions.First(x => x.Id == GetCurrentUserFraction()).Color;
-                    ediCell.LastAttackTime = (long)Timer.GetTimeNow();
-
-                    //var editCell = db.FieldCells.First(x => x.X == coordX && x.Y == coordY);
-                    //editCell.IsStroked = true;
-                    //editCell.FractionAttackId = GetCurrentUserFraction();
-                    //db.SaveChanges();
-
-                    MainLogic.UpdateTimerForUser(userId);
+                    return null;
                 }
 
+                if (ediCell.colorAttack == GetCurrentUserFractionColor())
+                {
+                    return null;
+                }
 
+                
+                ediCell.LastAttackTime = (long)Timer.GetTimeNow();
+                ediCell.PlayerId = userId;
+
+                if (ediCell.colorDef == GetCurrentUserFractionColor())
+                {
+                    GameModel.IncreasePlayersStats(userId, GameModel.Stats.SuccessfulDefends);
+                    ediCell.isStroked = false;
+                }
+                else
+                {
+                    GameModel.IncreasePlayersStats(userId, GameModel.Stats.AttackAttempts);
+                    ediCell.isStroked = true;
+                }
+                ediCell.colorAttack = ediCell.colorDef == GetCurrentUserFractionColor() ? null : GetCurrentUserFractionColor();
+                
+                
+                MainLogic.UpdateTimerForUser(userId);
                 return MainLogic.Timer.UsersLastClicks[userId].ToString();
             }
 
