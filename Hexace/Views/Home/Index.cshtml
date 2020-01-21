@@ -70,15 +70,13 @@
                 //На доске ли координаты мыши
                 var obj = { x: hexX, y: hexY, color: ctx };
 
-                if (board.some(item => (item.x === obj.x) && (item.y === obj.y))&& @GameModel.LastClick - Date.now()<0) {
-                    index = board.findIndex(item => (item.x === obj.x) && (item.y === obj.y));
+                if (board.some(item => (item.x === obj.x) && (item.y === obj.y))&& @Model.LastClick - Date.now()<0) {
                     document.getElementById("cellY").value = hexY;
                     document.getElementById("cellX").value = hexX;
-                    document.getElementById("cellId").value = index;
                     document.getElementById("cells_str").value = '@Html.Raw(Model.CellString)';
                     var btn = document.getElementById("btn_submit");
                     btn.click();
-                };
+                }
 
                 draw(board);
             });
@@ -134,7 +132,6 @@
 </div>
 <form method="post" asp-controller="Home" asp-action="BoardActionResult">
     <input asp-for="Y" type="hidden" id="cellY" value="3" />
-    <input asp-for="Id" type="hidden" id="cellId" value="5" />
     <input asp-for="X" type="hidden" id="cellX" value="23" />
     <input asp-for="CellString" type="hidden" id="cells_str" />
     <input type="submit" id="btn_submit" value="Take Hex" class="btn-signin" />
@@ -151,10 +148,10 @@
 </div>
 <script>
     $(function() {
-        var countDownDate = @GameModel.LastClick;
+        var countDownDate = @Model.LastClick;
         var x = setInterval(function() {
             var now = Date.now();
-            var distance = Math.floor(countDownDate - now);
+            var distance = Math.floor(countDownDate+40000 - now);
             var minutes = Math.floor(distance / 1000 / 60);
             var seconds = Math.floor((distance % (1000 * 60)) / 1000);
             document.getElementById("my_timer").innerHTML = minutes+"m : "+seconds+"s";

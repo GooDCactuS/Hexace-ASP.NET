@@ -6,6 +6,7 @@ using Hexace.Data;
 using Microsoft.Extensions.Configuration;
 using System.Configuration;
 using Hexace.Controllers;
+using Hexace.Models;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Hexace
@@ -15,12 +16,31 @@ namespace Hexace
         public static int SeasonId { get; private set; }
         public static FractionStats FractionStats { get; private set; }
         public static Chat Chat { get; private set; }
+        public static Timer Timer { get; private set; }
+        public static GameModel GameModel { get; private set; }
 
         public MainLogic(IServiceProvider services)
         {
             SeasonId = 1;
             FractionStats = new FractionStats(services.GetService<HexaceContext>());
             Chat = new Chat(services.GetService<HexaceContext>());
+            Timer = new Timer(services.GetService<HexaceContext>());
+            GameModel = new GameModel(services.GetService<HexaceContext>());
+        }
+
+        public void UpdateCells()
+        {
+            foreach (var cell in GameModel.Cells)
+            {
+                if(cell.isStroked&& cell.LastAttackTime - Timer.GetTimeNow() > 1000 * 60)
+                {
+                    cell.isFilled = true;
+                    cell.isStroked = false;
+                    cell.colorDef = cell.colorAttack;
+                    cell.colorAttack = "";
+                    GameModel.SaveChanges(cell);
+                }
+            }
         }
 
         public void UpdateChat()
@@ -28,6 +48,10 @@ namespace Hexace
             Chat.UpdateMessages();
         }
 
+        public void UpdateTimerForUser(int userId)
+        {
+            Timer.UpdateClickUser(userId);
+        }
         public void UpdateInfo()
         {
             FractionStats.UpdateStats();
