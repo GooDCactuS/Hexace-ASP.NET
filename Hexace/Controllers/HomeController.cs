@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Hexace.Data;
 using Microsoft.AspNetCore.Mvc;
@@ -13,7 +14,9 @@ using Hexace.Models;
 using Microsoft.AspNetCore.Authorization;
 using System.Web;
 using Hexace.Data.Objects;
+using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
+using Timer = Hexace.Models.Timer;
 
 namespace Hexace.Controllers
 {
@@ -26,26 +29,26 @@ namespace Hexace.Controllers
             db = context;
         }
 
-        [HttpPost]
-        [Authorize]
-        public IActionResult BoardActionResult(HomeModel model)
-        {
-            var ediCell = MainLogic.GameModel.Cells.First(x => x.x == model.X && x.y == model.Y);
-            ediCell.isStroked = true;
-            ediCell.colorAttack = db.Fractions.First(x => x.Id == GetCurrentUserFraction()).Color;
-            ediCell.LastAttackTime = Timer.GetTimeNow();
+        //[HttpPost]
+        //[Authorize]
+        //public IActionResult BoardActionResult(HomeModel model)
+        //{
+        //    var ediCell = MainLogic.GameModel.Cells.First(x => x.x == model.X && x.y == model.Y);
+        //    ediCell.isStroked = true;
+        //    ediCell.colorAttack = db.Fractions.First(x => x.Id == GetCurrentUserFraction()).Color;
+        //    ediCell.LastAttackTime = (long)Timer.GetTimeNow();
 
-            var editCell = db.FieldCells.First(x => x.X == model.X && x.Y == model.Y);
-            editCell.IsStroked = true;
-            editCell.FractionAttackId = GetCurrentUserFraction();
-            db.SaveChanges();
+        //    var editCell = db.FieldCells.First(x => x.X == model.X && x.Y == model.Y);
+        //    editCell.IsStroked = true;
+        //    editCell.FractionAttackId = GetCurrentUserFraction();
+        //    db.SaveChanges();
 
-            MainLogic.Timer.UpdateClickUser(db.Users.First(u => u.Email == HttpContext.User.Identity.Name).Id);
-            model.LastClick =
-                MainLogic.Timer.UsersLastClicks[db.Users.First(u => u.Email == HttpContext.User.Identity.Name).Id];
-            model.CellString = GetJsonString(MainLogic.GameModel.Cells);
-            return View("Index", model);
-        }
+        //    MainLogic.Timer.UpdateClickUser(db.Users.First(u => u.Email == HttpContext.User.Identity.Name).Id);
+        //    model.LastClick =
+        //        MainLogic.Timer.UsersLastClicks[db.Users.First(u => u.Email == HttpContext.User.Identity.Name).Id];
+        //    model.CellString = GetJsonString(MainLogic.GameModel.Cells);
+        //    return View("Index", model);
+        //}
 
         [HttpGet]
         [Authorize]
@@ -92,7 +95,6 @@ namespace Hexace.Controllers
             //}
             HomeModel model = new HomeModel();
             var userId = db.Users.First(u => u.Email == HttpContext.User.Identity.Name).Id;
-            //MainLogic.UpdateTimerForUser(userId);
             model.LastClick = MainLogic.Timer.UsersLastClicks[userId];
             model.CellString = GetJsonString(MainLogic.GameModel.Cells);
             return View(model);
@@ -115,19 +117,34 @@ namespace Hexace.Controllers
             return profile.FractionId;
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("UpdateField")]
-        public string UpdateField()
+        public string UpdateField(string userState)
         {
-            HomeModel model = new HomeModel();
-            model.CellString = GetJsonString(MainLogic.GameModel.Cells);
-
-            if (model.CellString == null)
+            var cells = GetObjectCells(userState);
+            var isDifferent = false;
+            foreach (var item in cells)
             {
-                return "null";
+                if (!MainLogic.GameModel.Cells.Any(c => c.Equals(item)))
+                {
+                    isDifferent = true;
+                    break;
+                }
             }
 
-            return model.CellString;
+            if (isDifferent)
+            {
+                var cellString = GetJsonString(MainLogic.GameModel.Cells);
+
+                if (cellString == null)
+                {
+                    return "null";
+                }
+
+                return cellString;
+            }
+
+            return "null";
         }
 
         [HttpPost]
@@ -137,20 +154,32 @@ namespace Hexace.Controllers
             var coords = userAction.Split(' ');
             var coordX = Int32.Parse(coords[0]);
             var coordY = Int32.Parse(coords[1]);
-            var ediCell = MainLogic.GameModel.Cells.First(x => x.x == coordX && x.y == coordY);
-            ediCell.isStroked = true;
-            ediCell.colorAttack = db.Fractions.First(x => x.Id == GetCurrentUserFraction()).Color;
-            ediCell.LastAttackTime = Timer.GetTimeNow();
-
-            var editCell = db.FieldCells.First(x => x.X == coordX && x.Y == coordY);
-            editCell.IsStroked = true;
-            editCell.FractionAttackId = GetCurrentUserFraction();
-            db.SaveChanges();
 
             var userId = db.Users.First(u => u.Email == HttpContext.User.Identity.Name).Id;
 
-            MainLogic.Timer.UpdateClickUser(userId);
-            return MainLogic.Timer.UsersLastClicks[userId].ToString();
+            if (MainLogic.Timer.UsersLastClicks[userId] < Timer.GetTimeNow())
+            {
+                var ediCell = MainLogic.GameModel.Cells.First(x => x.x == coordX && x.y == coordY);
+                if (ediCell.colorAttack != (db.Fractions.First(x => x.Id == GetCurrentUserFraction()).Color))
+                {
+                    ediCell.isStroked = true;
+                    ediCell.colorAttack = db.Fractions.First(x => x.Id == GetCurrentUserFraction()).Color;
+                    ediCell.LastAttackTime = (long)Timer.GetTimeNow();
+
+                    var editCell = db.FieldCells.First(x => x.X == coordX && x.Y == coordY);
+                    editCell.IsStroked = true;
+                    editCell.FractionAttackId = GetCurrentUserFraction();
+                    db.SaveChanges();
+
+                    MainLogic.UpdateTimerForUser(userId);
+                }
+
+
+                return MainLogic.Timer.UsersLastClicks[userId].ToString();
+            }
+
+
+            return null;
         }
 
         [HttpGet]

@@ -31,6 +31,7 @@ namespace Hexace
         {
             MainLogic.UpdateChat();
             MainLogic.UpdateInfo();
+            MainLogic.UpdateCellsInDb();
             
         }
 

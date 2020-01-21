@@ -28,22 +28,26 @@ namespace Hexace
             GameModel = new GameModel(services.GetService<HexaceContext>());
         }
 
-        public void UpdateCells()
+        public static void UpdateCells()
+        {
+            foreach (var cell in GameModel.Cells.Where(x => x.isStroked))
+            {
+                if ((long)Timer.GetTimeNow() - cell.LastAttackTime > 1000 * 60)
+                {
+                    cell.isFilled = true;
+                    cell.isStroked = false;
+                    cell.colorDef = cell.colorAttack;
+                    cell.LastAttackTime = 0;
+                    cell.colorAttack = "";
+                }
+            }
+        }
+
+        public static void UpdateCellsInDb()
         {
             lock (new object())
             {
-                foreach (var cell in GameModel.Cells.Where(x => x.isStroked))
-                {
-                    if (cell.LastAttackTime - Timer.GetTimeNow() > 1000 * 60)
-                    {
-                        cell.isFilled = true;
-                        cell.isStroked = false;
-                        cell.colorDef = cell.colorAttack;
-                        cell.LastAttackTime = 0;
-                        cell.colorAttack = "";
-                        GameModel.SaveChanges(cell);
-                    }
-                }
+                GameModel.SaveChanges();
             }
         }
 
@@ -63,7 +67,7 @@ namespace Hexace
                 Timer.UpdateClickUser(userId);
             }
         }
-        
+
         public static void UpdateInfo()
         {
             lock (new object())
@@ -71,7 +75,6 @@ namespace Hexace
                 FractionStats.UpdateStats();
             }
 
-            //Chat.UpdateMessages();
         }
     }
 }

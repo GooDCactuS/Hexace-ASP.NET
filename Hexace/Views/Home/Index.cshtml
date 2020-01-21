@@ -6,6 +6,7 @@
 <script src="/lib/jquery/dist/jquery.js"></script>
 <script>
     var g_board;
+    var isReload;
 
     $(function () {
         var board = JSON.parse('@Html.Raw(Model.CellString)');
@@ -17,10 +18,10 @@
 
         setInterval(function () {
             getNewBoard();
-            if (g_board != null) {
+            if (isReload == true && g_board != null) {
                 render(g_board);
             }
-        }, 3000);
+        }, 5000);
 
     });
 
@@ -144,21 +145,21 @@
 
     // Ajax-запрос на получение нового состояния поля
     function getNewBoard() {
-        var board = null;
         $.ajax({
             url: 'UpdateField',
-            type: 'Get',
+            type: 'Post',
+            data: { userState : JSON.stringify(g_board) },
             success: function(result) {
                 if (result === null || result === "null") {
-                    board = null;
+                    isReload = false;
                 } else {
-                    board = JSON.parse(result);
-                    g_board = board;
+                    isReload = true;
+                    g_board = JSON.parse(result);
                 }
 
             }
         });
-        return board;
+        return g_board;
     }
 
     // Ajax-запрос на клик по полю
@@ -174,8 +175,11 @@
                     render(g_board);
                 }
 
-                var countDownDate = result;
-                updateTimer(countDownDate);
+                if (result != null) {
+                    var countDownDate = result;
+                    updateTimer(countDownDate);
+                }
+
             }
         });
     }
@@ -194,7 +198,7 @@
     </div>
 
 </div>
-<form method="post" asp-controller="Home" asp-action="BoardActionResult">
+<form method="post">
     <input asp-for="Y" type="hidden" id="cellY" value="3" />
     <input asp-for="X" type="hidden" id="cellX" value="23" />
     <input asp-for="CellString" type="hidden" id="cells_str" />
@@ -213,7 +217,7 @@
 <script>
     $(function () {
         updateChat();
-        setInterval(updateChat, 100000000000); // запускать обновление чата каждые 5000 мс
+        setInterval(updateChat, 5000); // запускать обновление чата каждые 5000 мс
     });
 
     var messages;
