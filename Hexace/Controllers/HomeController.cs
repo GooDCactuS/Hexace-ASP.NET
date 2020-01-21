@@ -72,7 +72,6 @@ namespace Hexace.Controllers
             //        if (start % 2 == 1)
             //            indent--;
             //    }
-
             //    for (var i = width / 2 - start + indent; i < width / 2 + indent; i++)
             //    {
             //        var obj = (x: i, y: j, color: fractions[0].Color, isFill: false);
@@ -87,8 +86,6 @@ namespace Hexace.Controllers
             //            });
             //        db.SaveChanges();
             //    }
-
-
             //}
             HomeModel model = new HomeModel();
             model.CellString = GetJsonString(MainLogic.GameModel.Cells);
@@ -119,14 +116,13 @@ namespace Hexace.Controllers
         {
             HomeModel model = new HomeModel();
             model.CellString = GetJsonString(MainLogic.GameModel.Cells);
-            if (MainLogic.GameModel.CellString == null)
+            if (model.CellString == null)
             {
                 return new JsonResult("null");
             }
-
             return new JsonResult(model.CellString);
-
         }
+
         [HttpGet]
         [Route("UpdateChat")]
         public JsonResult UpdateChat(string lastMessage)
@@ -137,9 +133,7 @@ namespace Hexace.Controllers
             {
                 return new JsonResult("null");
             }
-
             return new JsonResult(messages);
-
         }
 
         [HttpPost]

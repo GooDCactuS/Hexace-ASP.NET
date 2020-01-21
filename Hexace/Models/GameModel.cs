@@ -36,7 +36,6 @@ namespace Hexace.Models
         private HexaceContext db;
         public List<ObjectCell> Cells { get; set; }
         public string CellString { get; set; }
-        public double LastClick { get; set; }
 
         public GameModel(HexaceContext context)
         {
