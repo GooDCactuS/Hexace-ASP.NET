@@ -45,10 +45,7 @@ namespace Hexace
 
         public static void UpdateCellsInDb()
         {
-            lock (new object())
-            {
                 GameModel.SaveChanges();
-            }
         }
 
         public static void UpdateChat()

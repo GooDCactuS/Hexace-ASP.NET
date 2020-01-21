@@ -144,6 +144,8 @@ namespace Hexace.Controllers
                 return cellString;
             }
 
+
+
             return "null";
         }
 
@@ -160,16 +162,21 @@ namespace Hexace.Controllers
             if (MainLogic.Timer.UsersLastClicks[userId] < Timer.GetTimeNow())
             {
                 var ediCell = MainLogic.GameModel.Cells.First(x => x.x == coordX && x.y == coordY);
+
+                // TODO: написать проверку чтобы нельзя было нападать на свои базы
+
+
+
                 if (ediCell.colorAttack != (db.Fractions.First(x => x.Id == GetCurrentUserFraction()).Color))
                 {
                     ediCell.isStroked = true;
                     ediCell.colorAttack = db.Fractions.First(x => x.Id == GetCurrentUserFraction()).Color;
                     ediCell.LastAttackTime = (long)Timer.GetTimeNow();
 
-                    var editCell = db.FieldCells.First(x => x.X == coordX && x.Y == coordY);
-                    editCell.IsStroked = true;
-                    editCell.FractionAttackId = GetCurrentUserFraction();
-                    db.SaveChanges();
+                    //var editCell = db.FieldCells.First(x => x.X == coordX && x.Y == coordY);
+                    //editCell.IsStroked = true;
+                    //editCell.FractionAttackId = GetCurrentUserFraction();
+                    //db.SaveChanges();
 
                     MainLogic.UpdateTimerForUser(userId);
                 }
