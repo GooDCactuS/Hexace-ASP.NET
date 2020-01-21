@@ -4,45 +4,65 @@
 }
 
 @*<h2>@ViewData["Title"]</h2>*@
-<script>
-    function sendData(data) {
-        document.getElementById("hiddenField").value = data;
-    }
-</script>
-<form asp-controller="Leaderboard" asp-action="Index" class="flexContainer">
-    <input asp-for="ButtonValue" type="hidden" id="hiddenField"/>
+<form class="flexContainer">
     <div class="subContainer">
-        <input type="image" onclick="sendData('ta')" class="image" src="images/hex_turquoise.svg" alt="Turquoise Team">
-        <input type="image" onclick="sendData('td')" class="image" src="images/hex_turquoise.svg" alt="Turquoise Team">
+        <input type="image" onclick="return chooseFraction('ta')" class="image" src="images/hex_turquoise.svg" alt="Turquoise Team">
+        <input type="image" onclick="return chooseFraction('td')" class="image" src="images/hex_turquoise.svg" alt="Turquoise Team">
     </div>
     <div class="subContainer">
-        <input type="image" onclick="sendData('pa')" class="image" src="images/hex_purple.svg" alt="Purple Team">
-        <input type="image" onclick="sendData('pd')" class="image" src="images/hex_purple.svg" alt="Purple Team">
+        <input type="image" onclick="return chooseFraction('pa')" class="image" src="images/hex_purple.svg" alt="Purple Team">
+        <input type="image" onclick="return chooseFraction('pd')" class="image" src="images/hex_purple.svg" alt="Purple Team">
     </div>
     <div class="subContainer">
-        <input type="image" onclick="sendData('ba')" class="image" src="images/hex_burgundy.svg" alt="Burgundy Team">
-        <input type="image" onclick="sendData('bd')" class="image" src="images/hex_burgundy.svg" alt="Burgundy Team">
+        <input type="image" onclick="return chooseFraction('ba')" class="image" src="images/hex_burgundy.svg" alt="Burgundy Team">
+        <input type="image" onclick="return chooseFraction('bd')" class="image" src="images/hex_burgundy.svg" alt="Burgundy Team">
     </div>
 
 
 </form>
 
 <div class="leaderboardTable">
-
     <table>
         <tr>
             <td>#</td>
             <td colspan="2">Nickname</td>
             <td>Rating</td>
         </tr>
-        @for(int i=0; i<@Model.Users.Count; i++)
+        @for (int i = 0; i < 5; i++)
         {
             <tr>
-                <td>@(i+1)</td>
-                <td colspan="2">@Model.Users[i].Nickname</td>
-                <td>@Model.Users[i].ProfileInfo.SuccessfulAttacks</td>
+                <td>@(i + 1)</td>
+                <td colspan="2"></td>
+                <td></td>
+
             </tr>
         }
-        
     </table>
 </div>
+
+<script>
+    function chooseFraction(fraction) {
+        $.ajax({
+            url: 'ChooseLeaderboard',
+            type: 'Get',
+            data: { leaderboardFraction: fraction },
+            success: function (result) {
+                var tds = document.getElementsByTagName('td');
+
+                for (var i = 4; i < tds.length; i += 3) {
+                    tds[i].innerHTML = "";
+                    tds[i + 1].innerHTML = "";
+                }
+
+                for (var i = 4, j = 0; i < tds.length && j < result.length; j++) {
+                    tds[i].innerHTML = result[j].nickname;
+                    tds[i + 1].innerHTML = result[j].profile.successfulAttacks;
+                    i += 3;
+                }
+
+            }
+
+        });
+        return false;
+    }
+</script>

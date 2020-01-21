@@ -12,8 +12,6 @@ using Newtonsoft.Json;
 
 namespace Hexace.Models
 {
-    
-
     public class HomeModel
     {
         public string UserMessage { get; set; }

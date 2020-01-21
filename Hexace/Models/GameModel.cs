@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Hexace.Data;
 using Newtonsoft.Json;
@@ -22,13 +23,29 @@ namespace Hexace.Models
         //    this.x = x;
         //    this.y = y;
         //}
+
         public int x;
         public int y;
         public string? colorDef;
         public string? colorAttack;
         public bool isFilled;
         public bool isStroked;
-        public double LastAttackTime;
+        public long LastAttackTime;
+
+        public override bool Equals(Object obj)
+        {
+            if ((obj == null) || !this.GetType().Equals(obj.GetType()))
+            {
+                return false;
+            }
+            else
+            {
+                ObjectCell oc = (ObjectCell)obj;
+                return (x == oc.x) && (y == oc.y) && (colorDef == oc.colorDef) && (colorAttack == oc.colorAttack) &&
+                       (isFilled == oc.isFilled) && (isStroked == oc.isStroked) &&
+                       (LastAttackTime == oc.LastAttackTime);
+            }
+        }
     }
 
     public class GameModel
@@ -44,18 +61,22 @@ namespace Hexace.Models
             foreach (var cell in db.FieldCells.ToList())
             {
                 var colorDef = cell.IsFilled ? db.Fractions.First(x => x.Id == cell.FractionDefId).Color : null;
+                cell.IsStroked = false;
                 var colorAttack = cell.IsStroked ? db.Fractions.First(x => x.Id == cell.FractionAttackId).Color : null;
-                Cells.Add(new ObjectCell(cell.X, cell.Y, cell.IsFilled, cell.IsStroked, colorAttack, colorDef));
+                Cells.Add(new ObjectCell(cell.X, cell.Y, cell.IsFilled, cell.IsStroked, null, colorDef));
             }
         }
 
-        public void SaveChanges(ObjectCell cell)
+        public void SaveChanges()
         {
-            var updateCell = db.FieldCells.First(x => x.Y == cell.x && x.Y==cell.y);
-            updateCell.FractionDefId = updateCell.FractionAttackId;
-            updateCell.FractionAttackId = null;
-            updateCell.IsFilled = true;
-            updateCell.IsStroked = false;
+            foreach (var cell in Cells)
+            {
+                var updateCell = db.FieldCells.First(x => x.Y == cell.x && x.Y == cell.y);
+                updateCell.FractionDefId = updateCell.FractionAttackId;
+                updateCell.FractionAttackId = null;
+                updateCell.IsFilled = true;
+                updateCell.IsStroked = false;
+            }
             db.SaveChanges();
         }
 

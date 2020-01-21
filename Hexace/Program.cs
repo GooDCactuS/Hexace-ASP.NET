@@ -27,12 +27,26 @@ namespace Hexace
                 var services = scope.ServiceProvider;
                 mainLogic = new MainLogic(services);
             }
-            var inner = Task.Factory.StartNew(() =>  // task for statistics updating in db
+            //var inner = Task.Factory.StartNew(() =>  // task for statistics updating in db
+            //{
+            //    while (true)
+            //    {
+            //        //Thread.Sleep(1000*30);
+            //        Thread.Sleep(1000 * 60 * 60);
+            //        MainLogic.UpdateChat();
+            //        MainLogic.UpdateInfo();
+            //    }
+            //});
+
+            var gameUpdateTask = Task.Factory.StartNew(() =>
             {
                 while (true)
                 {
-                    Thread.Sleep(1000 * 60 * 60);
-                    mainLogic.UpdateInfo();
+                    Thread.Sleep(1000 * 3);
+                    lock (new object())
+                    {
+                        MainLogic.UpdateCells();
+                    }
                 }
             });
 

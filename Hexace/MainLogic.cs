@@ -28,35 +28,53 @@ namespace Hexace
             GameModel = new GameModel(services.GetService<HexaceContext>());
         }
 
-        public void UpdateCells()
+        public static void UpdateCells()
         {
-            foreach (var cell in GameModel.Cells.Where(x=>x.isStroked))
+            foreach (var cell in GameModel.Cells.Where(x => x.isStroked))
             {
-                if(cell.LastAttackTime - Timer.GetTimeNow() > 1000 * 60)
+                if ((long)Timer.GetTimeNow() - cell.LastAttackTime > 1000 * 60)
                 {
                     cell.isFilled = true;
                     cell.isStroked = false;
                     cell.colorDef = cell.colorAttack;
                     cell.LastAttackTime = 0;
                     cell.colorAttack = "";
-                    GameModel.SaveChanges(cell);
                 }
             }
         }
 
-        public void UpdateChat()
+        public static void UpdateCellsInDb()
         {
-            Chat.UpdateMessages();
+            lock (new object())
+            {
+                GameModel.SaveChanges();
+            }
         }
 
-        public void UpdateTimerForUser(int userId)
+        public static void UpdateChat()
         {
-            Timer.UpdateClickUser(userId);
+            lock (new object())
+            {
+                Chat.UpdateMessages();
+            }
         }
-        public void UpdateInfo()
+
+
+        public static void UpdateTimerForUser(int userId)
         {
-            FractionStats.UpdateStats();
-            Chat.UpdateMessages();
+            lock (new object())
+            {
+                Timer.UpdateClickUser(userId);
+            }
+        }
+
+        public static void UpdateInfo()
+        {
+            lock (new object())
+            {
+                FractionStats.UpdateStats();
+            }
+
         }
     }
 }
