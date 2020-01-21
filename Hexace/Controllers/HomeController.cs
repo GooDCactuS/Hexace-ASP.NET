@@ -13,6 +13,7 @@ using Hexace.Models;
 using Microsoft.AspNetCore.Authorization;
 using System.Web;
 using Hexace.Data.Objects;
+using Newtonsoft.Json;
 
 namespace Hexace.Controllers
 {
@@ -29,21 +30,26 @@ namespace Hexace.Controllers
         [Authorize]
         public IActionResult BoardActionResult(HomeModel model)
         {
+            var ediCell = MainLogic.GameModel.Cells.First(x => x.x == model.X && x.y == model.Y);
+            ediCell.isStroked= true;
+            ediCell.colorAttack= db.Fractions.First(x=>x.Id== GetCurrentUserFraction()).Color;
+            ediCell.LastAttackTime= MainLogic.Timer.GetTimeNow();
+
             var editCell = db.FieldCells.First(x => x.X == model.X && x.Y == model.Y);
             editCell.IsStroked = true;
-            editCell.FractionAttackId = 2;
+            editCell.FractionAttackId = GetCurrentUserFraction();
             db.SaveChanges();
 
-            model.Cells = HomeModel.GetObjectCells(model.CellString); //нужно понять как нормально десериализировать
-
-            model.Cells[model.Id].isStroked = true;
-            model.Cells[model.Id].colorAttack = db.Fractions.First(x => x.Id == GetCurrentUserFraction()).Color; //проверка fraction id пользователя
+            MainLogic.Timer.UpdateClickUser(db.Users.First(u => u.Email == HttpContext.User.Identity.Name).Id);
+            model.LastClick =
+                MainLogic.Timer.lastClicks[db.Users.First(u => u.Email == HttpContext.User.Identity.Name).Id];
+            model.CellString = GetJsonString(MainLogic.GameModel.Cells);
             return View("Index", model);
         }
 
         [HttpGet]
         [Authorize]
-        public IActionResult Index(HomeModel model)
+        public IActionResult Index()
         {
             var fractions = db.Fractions.ToList();
             //var side = 10;
@@ -82,21 +88,25 @@ namespace Hexace.Controllers
             //        db.SaveChanges();
             //    }
 
-                
+
             //}
-
-            model.Cells = new List<ObjectCell>();
-            foreach (var cell in db.FieldCells.ToList())
-            {
-                var colorDef = cell.IsFilled ? db.Fractions.First(x => x.Id == cell.FractionDefId).Color : null;
-                var colorAttack = cell.IsStroked ? db.Fractions.First(x => x.Id == cell.FractionAttackId).Color : null;
-                model.Cells.Add(new ObjectCell(cell.X, cell.Y, cell.IsFilled, cell.IsStroked, colorAttack, colorDef));
-            }
-
-            model.CellString = HomeModel.GetJsonString(model.Cells);
+            HomeModel model = new HomeModel();
+            MainLogic.GameModel.LastClick =
+                MainLogic.Timer.lastClicks[db.Users.First(u => u.Email == HttpContext.User.Identity.Name).Id];
+            model.CellString = GetJsonString(MainLogic.GameModel.Cells);
+            model.LastClick = MainLogic.GameModel.LastClick;
             return View(model);
         }
 
+        public static List<ObjectCell> GetObjectCells(string str)
+        {
+            return JsonConvert.DeserializeObject<ObjectCell[]>(str).ToList();
+        }
+
+        public static string GetJsonString(List<ObjectCell> cells)
+        {
+            return JsonConvert.SerializeObject(cells);
+        }
 
         public int GetCurrentUserFraction()
         {
@@ -105,6 +115,20 @@ namespace Hexace.Controllers
             return profile.FractionId;
         }
 
+        [HttpGet]
+        [Route("UpdateField")]
+        public JsonResult UpdateField(string result)
+        {
+            HomeModel model = new HomeModel();
+            model.CellString = GetJsonString(MainLogic.GameModel.Cells);
+            if (MainLogic.GameModel.CellString == null)
+            {
+                return new JsonResult("null");
+            }
+
+            return new JsonResult(model.CellString);
+
+        }
         [HttpGet]
         [Route("UpdateChat")]
         public JsonResult UpdateChat(string lastMessage)
@@ -115,7 +139,7 @@ namespace Hexace.Controllers
             {
                 return new JsonResult("null");
             }
-    
+
             return new JsonResult(messages);
 
         }

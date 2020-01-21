@@ -71,7 +71,6 @@ namespace Hexace.Models
                         flag = false;
                         break;
                     }
-                        
                 }
 
                 if (flag)
