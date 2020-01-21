@@ -98,7 +98,6 @@
                     var btn = document.getElementById("btn_submit");
                     btn.click();
                 }
-                var tmp = JSON.parse('@Html.Raw(Model.CellString)');
                 draw(tmp);
             });
 
@@ -168,7 +167,7 @@
         $.ajax({
             url: 'SendUserAction',
             type: 'Post',
-            data: { userAction : JSON.stringify(document.getElementById("cells_str")).value },
+            data: { userAction: document.getElementById("cellX").value + " " + document.getElementById("cellY").value },
             success: function(result) {
                 getNewBoard();
                 if (g_board != null) {
