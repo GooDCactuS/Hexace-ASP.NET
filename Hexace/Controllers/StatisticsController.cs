@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Hexace.Models;
 using Microsoft.AspNetCore.Mvc;
+using Hexace.Data;
+using Hexace.Data.Objects;
 
 namespace Hexace.Controllers
 {
@@ -11,7 +13,7 @@ namespace Hexace.Controllers
     {
         public IActionResult Index()
         {
-            StatisticsModel model = new StatisticsModel();
+            StatisticsModel model = new StatisticsModel(FractionStats.Stats);
             return View(model);
         }
     }

@@ -19,6 +19,7 @@ namespace Hexace.Models
         [DataType(DataType.Password)]
         public string Password { get; set; }
 
+        [Required(ErrorMessage = "Password not specified")]
         [DataType(DataType.Password)]
         [Compare("Password", ErrorMessage = "Passwords do not match")]
         public string PasswordConfirmation { get; set; }

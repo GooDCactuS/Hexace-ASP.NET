@@ -6,32 +6,16 @@ namespace Hexace.Models
 {
     public class StatisticsModel : PageModel
     {
-        public List<int> Statistics { get; set; } = new List<int>();
+        public Dictionary<string, int> Statistics { get; set; }
 
-        public StatisticsModel()
+        public StatisticsModel(Dictionary<string, int> stats)
         {
-            Statistics.Add(350);
-            Statistics.Add(220);
-            Statistics.Add(470);
+            Statistics = stats;
         }
 
         public void OnGet()
         {
-            //string connectionString = ConfigurationManager<>.ConnectionStrings["DefaultConnection"].ConnectionString;
-            //using (SqlConnection connection = new SqlConnection(connectionString))
-            //{
-            //    connection.Open();
-            //    SqlCommand command = new SqlCommand { Connection = connection };
-            //    command.CommandText = $"SELECT * ";
-            //    var reader = command.ExecuteReader();
-            //    if (reader.HasRows)
-            //    {
-            //        while (reader.Read())
-            //        {
-
-            //        }
-            //    }
-            //}
+           
 
         }
     }

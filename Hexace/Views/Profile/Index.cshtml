@@ -3,10 +3,26 @@
     ViewData["Title"] = "Profile";
 }
 @*<h2>@ViewData["Title"]</h2>*@
-    <div>
-        <p>Здесь будет располагаться профиль.</p>
-        
-        <form asp-controller="Profile" asp-action="Logout">
-            <input type="submit" value="Sign out"/>
-        </form>
-    </div>
+<div>
+    <p>Your nickname: @Model.User.Nickname</p>
+    <p>Registration date: @Model.User.RegistrationDate.Day.@Model.User.RegistrationDate.Month.@Model.User.RegistrationDate.Year</p><br />
+    <p>Attack attempts: @Model.Profile.AttackAttempts</p>
+    <p>Successful attacks: @Model.Profile.SuccessfulAttacks</p>
+    <p>Defence attempts: @Model.Profile.DefenseAttempts</p>
+    <p>Successful defences: @Model.Profile.SuccessfulDefences</p>
+
+    <h2>Achievements:</h2>
+
+    @foreach (var item in Model.UserAchievements)
+    {
+        string output = item.AchievementName + " - " + item.AchievementDescription;
+        @if (item.IsAchieved)
+        {
+            output += " - " + @item.AchievementDate;
+        }
+        <p>@output</p>
+    }
+    <form asp-controller="Profile" asp-action="Logout">
+        <input type="submit" value="Sign out" class="buttons"/>
+    </form>
+</div>

@@ -1,67 +1,68 @@
-﻿@model Hexace.Models.LeaderboardModel
+﻿@model LeaderboardModel
 @{
     ViewData["Title"] = "Leaderboard";
 }
 
 @*<h2>@ViewData["Title"]</h2>*@
-
-<div class="flexContainer">
-    
+<form class="flexContainer">
     <div class="subContainer">
-        <img class="image" src="images/hex_turquoise.svg" alt="Turquoise Team">
-        <img class="image" src="images/hex_turquoise.svg" alt="Turquoise Team">
+        <input type="image" onclick="return chooseFraction('ta')" class="image" src="images/hex_turquoise.svg" alt="Turquoise Team">
+        <input type="image" onclick="return chooseFraction('td')" class="image" src="images/hex_turquoise.svg" alt="Turquoise Team">
     </div>
     <div class="subContainer">
-        <img class="image" src="images/hex_purple.svg" alt="Purple Team">
-        <img class="image" src="images/hex_purple.svg" alt="Purple Team">
+        <input type="image" onclick="return chooseFraction('pa')" class="image" src="images/hex_purple.svg" alt="Purple Team">
+        <input type="image" onclick="return chooseFraction('pd')" class="image" src="images/hex_purple.svg" alt="Purple Team">
     </div>
     <div class="subContainer">
-        <img class="image" src="images/hex_burgundy.svg" alt="Burgundy Team">
-        <img class="image" src="images/hex_burgundy.svg" alt="Burgundy Team">
+        <input type="image" onclick="return chooseFraction('ba')" class="image" src="images/hex_burgundy.svg" alt="Burgundy Team">
+        <input type="image" onclick="return chooseFraction('bd')" class="image" src="images/hex_burgundy.svg" alt="Burgundy Team">
     </div>
 
 
-</div>
+</form>
 
 <div class="leaderboardTable">
-
     <table>
         <tr>
             <td>#</td>
             <td colspan="2">Nickname</td>
-            <td colspan="2">Corporation</td>
             <td>Rating</td>
         </tr>
-        <tr>
-            <td>1</td>
-            <td colspan="2">Player 1</td>
-            <td colspan="2">-</td>
-            <td>208</td>
-        </tr>
-        <tr>
-            <td>2</td>
-            <td colspan="2">Player 2</td>
-            <td colspan="2">Aces</td>
-            <td>140</td>
-        </tr>
+        @for (int i = 0; i < 5; i++)
+        {
+            <tr>
+                <td>@(i + 1)</td>
+                <td colspan="2"></td>
+                <td></td>
 
-        <tr>
-            <td>3</td>
-            <td colspan="2">Player 3</td>
-            <td colspan="2">Aces</td>
-            <td>130</td>
-        </tr>
-        <tr>
-            <td>4</td>
-            <td colspan="2">Player 4</td>
-            <td colspan="2">-</td>
-            <td>92</td>
-        </tr>
-        <tr>
-            <td>5</td>
-            <td colspan="2">Player 5</td>
-            <td colspan="2">Sharks</td>
-            <td>76</td>
-        </tr>
+            </tr>
+        }
     </table>
 </div>
+
+<script>
+    function chooseFraction(fraction) {
+        $.ajax({
+            url: 'ChooseLeaderboard',
+            type: 'Get',
+            data: { leaderboardFraction: fraction },
+            success: function (result) {
+                var tds = document.getElementsByTagName('td');
+
+                for (var i = 4; i < tds.length; i += 3) {
+                    tds[i].innerHTML = "";
+                    tds[i + 1].innerHTML = "";
+                }
+
+                for (var i = 4, j = 0; i < tds.length && j < result.length; j++) {
+                    tds[i].innerHTML = result[j].nickname;
+                    tds[i + 1].innerHTML = result[j].value;
+                    i += 3;
+                }
+
+            }
+
+        });
+        return false;
+    }
+</script>

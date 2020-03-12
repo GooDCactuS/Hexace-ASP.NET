@@ -1,14 +1,267 @@
 ﻿@{
     ViewData["Title"] = "Play";
 }
+@model HomeModel
+
+<script src="/lib/jquery/dist/jquery.js"></script>
+<script>
+    var g_board;
+    var isReload;
+    var countDownDate;
+
+    $(function () {
+        var board = JSON.parse('@Html.Raw(Model.CellString)');
+        render(board);
+        g_board = board;
+
+        countDownDate = @Model.LastClick;
+        updateTimer(countDownDate);
+
+        setInterval(function () {
+            getNewBoard();
+            if (isReload == true && g_board != null) {
+                render(g_board);
+            }
+        }, 5000);
+
+    });
+
+    // Отрисовка таймера
+    function updateTimer(lastClick) {
+        var x = setInterval(function() {
+                var now = Date.now();
+                var distance = Math.floor(lastClick - now);
+                var minutes = Math.floor(distance / 1000 / 60);
+                var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                document.getElementById("my_timer").innerHTML = minutes + "m : " + seconds + "s";
+                if (distance < 0) {
+                    clearInterval(x);
+
+                    document.getElementById("my_timer").innerHTML = "Can attack/defense";
+                }
+            },
+            1000);
+
+    }
+
+    // Отрисовка поля
+    function render(board) {
+        var canvas = document.getElementById('hexagonCanvas');
+        if (canvas == null) return;
+        var hexHeight,
+            hexRadius,
+            hexRectangleHeight,
+            hexRectangleWidth,
+            hexagonAngle = 0.523598776, //30 градусов в радианах
+            sideLength = 18, //длина стороны, пискелов
+            boardWidth = 30 //ширина "доски" по вертикали
+        hexHeight = Math.sin(hexagonAngle) * sideLength;
+        hexRadius = Math.cos(hexagonAngle) * sideLength;
+        hexRectangleHeight = sideLength + 2 * hexHeight;
+        hexRectangleWidth = 2 * hexRadius;
+        if (canvas.getContext) {
+            var ctx = canvas.getContext('2d');
+            ctx.fillStyle = "#000000";
+            ctx.strokeStyle = "#ff132c";
+            ctx.lineWidth = 2;
+            draw(board);
+            //board = drawBoard(boardWidth); //первичная отрисовка
+            canvas.addEventListener("mousemove", function (eventInfo) { //слушатель перемещения мыши
+                var x = (eventInfo.offsetX || eventInfo.layer) * canvas.width / canvas.scrollWidth;
+                var y = (eventInfo.offsetY || eventInfo.layerY) * canvas.height / canvas.scrollHeight;
+                var hexY = Math.floor(y / (hexHeight + sideLength));
+                var hexX = Math.floor((x - (hexY % 2) * hexRadius) / hexRectangleWidth);
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                draw(board); //перерисовка на mousemove
+                //На доске ли координаты мыши
+                var obj = { x: hexX, y: hexY, color: ctx };
+                if (board.some(item => (item.x === obj.x) && (item.y === obj.y))) {
+                    ctx.lineWidth = 4;
+                    drawHexagon(ctx, obj.x, obj.y,"", false, true);
+                    ctx.lineWidth = 2;
+                }
+            });
+
+            canvas.addEventListener("mousedown", function (eventInfo) { //слушатель нажатий мыши
+                var x = (eventInfo.offsetX || eventInfo.layer) * canvas.width / canvas.scrollWidth;
+                var y = (eventInfo.offsetY || eventInfo.layerY) * canvas.height / canvas.scrollHeight;
+                var hexY = Math.floor(y / (hexHeight + sideLength));
+                var hexX = Math.floor((x - (hexY % 2) * hexRadius) / hexRectangleWidth);
+
+                //document.getElementById("arrLength").textContent = board.length;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                //На доске ли координаты мыши
+                var obj = { x: hexX, y: hexY, color: ctx };
+
+                if (board.some(item => (item.x === obj.x) && (item.y === obj.y)) && countDownDate < Date.now()) {
+                    document.getElementById("cellY").value = hexY;
+                    document.getElementById("cellX").value = hexX;
+                    document.getElementById("cells_str").value = '@Html.Raw(Model.CellString)';
+                    var btn = document.getElementById("btn_submit");
+                    btn.click();
+                }
+                draw(g_board);
+            });
+
+            function draw(board) {
+                for (var k = 0; k < board.length; k++) {
+                    if (board[k].isFilled)
+                        ctx.fillStyle = board[k].colorDef;
+                    drawHexagon(ctx, board[k].x, board[k].y,board[k].colorAttack, board[k].isFilled, board[k].isStroked);
+                }
+            }
+
+            function drawHexagon(canvasContext, x, y, colorAttack, fill = false, stroke = false)
+            {
+                x = x * hexRectangleWidth + ((y % 2) * hexRadius);//приведение координат
+                y = y * (hexHeight + sideLength);
+                canvasContext.strokeStyle = "#ff132c";
+                canvasContext.beginPath();
+                canvasContext.moveTo(x + hexRadius, y);
+                canvasContext.lineTo(x + hexRectangleWidth, y + hexHeight);
+                canvasContext.lineTo(x + hexRectangleWidth, y + hexHeight + sideLength);
+                canvasContext.lineTo(x + hexRadius, y + hexRectangleHeight);
+                canvasContext.lineTo(x, y + sideLength + hexHeight);
+                canvasContext.lineTo(x, y + hexHeight);
+                canvasContext.closePath();
+                if (fill) canvasContext.fill();
+                canvasContext.stroke();
+                if (stroke) {
+                    canvasContext.strokeStyle=colorAttack;
+                    canvasContext.beginPath();
+                    canvasContext.moveTo(x + hexRectangleWidth, y + hexHeight);
+                    canvasContext.lineTo(x, y + sideLength + hexHeight);
+                    canvasContext.closePath();
+                    canvasContext.stroke();
+                    canvasContext.beginPath();
+                    canvasContext.lineTo(x, y + hexHeight);
+                    canvasContext.lineTo(x + hexRectangleWidth, y + sideLength + hexHeight);
+                    canvasContext.closePath();
+                    canvasContext.stroke();
+                }
+            }
+        }
+
+    }
+
+    // Ajax-запрос на получение нового состояния поля
+    function getNewBoard() {
+        $.ajax({
+            url: 'UpdateField',
+            type: 'Post',
+            data: { userState : JSON.stringify(g_board) },
+            success: function(result) {
+                if (result === null || result === "null") {
+                    isReload = false;
+                } else {
+                    isReload = true;
+                    g_board = JSON.parse(result);
+                }
+
+            }
+        });
+        return g_board;
+    }
+
+    // Ajax-запрос на клик по полю
+    function sendUserAction() {
+        $.ajax({
+            url: 'SendUserAction',
+            type: 'Post',
+            data: { userAction: document.getElementById("cellX").value + " " + document.getElementById("cellY").value },
+            success: function(result) {
+                getNewBoard();
+                if (g_board != null) {
+                    render(g_board);
+                }
+
+                if (result != null) {
+                    countDownDate = result;
+                    updateTimer(countDownDate);
+                }
+
+            }
+        });
+    }
+
+</script>
+
+<p>
+    <span id="my_timer" style="color: floralwhite; font-size: 100%; font-weight: bold;"></span>
+</p>
+
 <div class="canvas-container">
-    @*<div>
-            <label id="arrLength">Length</label>
-        </div>*@
     <div>
         <canvas id="hexagonCanvas" width="700" height="550">
             Извините, ваш браузер не поддерживает тег canvas
         </canvas>
     </div>
+
 </div>
+<form>
+    <input asp-for="Y" type="hidden" id="cellY" value="3" />
+    <input asp-for="X" type="hidden" id="cellX" value="23" />
+    <input asp-for="CellString" type="hidden" id="cells_str" />
+    <input type="hidden" id="btn_submit" value="Take Hex" class="btn-signin" onclick="sendUserAction()" />
+</form>
+
+<div>
+    <textarea id="gameChat" cols="60" rows="30" style="background: #1c1d22;"> 
+    </textarea>
+    <form class="form-horizontal">
+        <label asp-for="UserMessage" style="text-transform: none">Your message:</label>
+        <input id="message" asp-for="UserMessage" type="text" style="color: black" size="40" />
+        <input type="button" value="Send" class="buttons" onclick="sendMessage()" />
+    </form>
+</div>
+<script>
+    $(function () {
+        updateChat();
+        setInterval(updateChat, 5000); // запускать обновление чата каждые 5000 мс
+    });
+
+    var messages;
+
+    // Ajax-запрос на обновление сообщений в чате
+    function updateChat() {
+        var msg;
+        if (messages == null) {
+            msg = null;
+        } else {
+            msg = messages[messages.length - 1];
+        }
+
+        $.ajax({
+            url: 'UpdateChat',
+            type: 'Get',
+            data: { lastMessage: msg },
+            success: function (result) {
+                if (result === null || result === "null") {
+                    return;
+                }
+                messages = result;
+                var chat = "";
+                for (var i = 0; i < result.length; i++) {
+                    chat += result[i] + "\r\n";
+                }
+                document.getElementById("gameChat").value = chat;
+
+            }
+        });
+    }
+
+    // Ajax-запрос на отправку сообщения
+    function sendMessage() {
+        var messageText = document.getElementById("message").value;
+        document.getElementById("message").value = "";
+        $.ajax({
+            url: 'SendMessage',
+            type: 'Post',
+            data: { message: messageText },
+            success: function () { updateChat(); }
+        });
+
+    }
+</script>
+
 <noscript><div>Извините, требуется включённый Javascript для работы приложения!</div></noscript>
